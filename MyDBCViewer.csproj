@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientDefinitions\BaseDbcFormat.cs" />
+    <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemCurrencyCostEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaGroupEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaTableEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\gtSpellScalingEntry.cs" />
@@ -91,7 +92,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ClientDefinitions\DB2\Cataclysm\" />
     <Folder Include="ClientDefinitions\DB2\WoTLK\" />
     <Folder Include="ClientDefinitions\DBC\WoTLK\" />
   </ItemGroup>

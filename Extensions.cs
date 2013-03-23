@@ -19,5 +19,10 @@ namespace MyDBCViewer.Extensions
         {
             MessageBox.Show(String.Format(message, args), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+
+        public static ToolStripItem LastItem(this ToolStripItemCollection list)
+        {
+            return list[list.Count - 1];
+        }
     }
 }
