@@ -137,7 +137,7 @@ namespace MyDBCViewer
             }
             catch (Exception /*ex*/)
             {
-                MessageBox.Show(String.Format("No definition found for {0}.db2 ({1})", SelectedFile, SelectedBuild), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Utils.BoxError("No definition found for {0}.db2 ({1})", SelectedFile, SelectedBuild);
             }
         }
 
@@ -168,7 +168,7 @@ namespace MyDBCViewer
             }
             catch (Exception /*ex*/)
             {
-                MessageBox.Show(String.Format("No definition found for {0}.dbc ({1})", SelectedFile, SelectedBuild), "Error!",MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Utils.BoxError("No definition found for {0}.dbc ({1})", SelectedFile, SelectedBuild);
             }
         }
 
