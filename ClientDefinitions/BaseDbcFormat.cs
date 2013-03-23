@@ -2,16 +2,24 @@
 using System.Reflection;
 using System.Windows.Forms;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace FileStructures.DBC.Cataclysm
+namespace FileStructures.DBC
 {
-    public struct ClientFieldInfo
+    public class ClientFieldInfo
     {
-        public string name;
-        public Type type;
-        public int arraySize; // Only if that's an array
+        public string Name;
+        public Type FieldType;
+        public int ArraySize; // Only if that's an array
+
+        public ClientFieldInfo(FieldInfo info)
+        {
+            Name = info.Name;
+            FieldType = info.FieldType;
+            ArraySize = 0;
+        }
     }
 
     public class BaseDbcFormat
@@ -24,16 +32,14 @@ namespace FileStructures.DBC.Cataclysm
             ClientFieldInfo[] resultSet = new ClientFieldInfo[propCount];
             for (int i = 0; i < propCount; ++i)
             {
-                resultSet[i] = new ClientFieldInfo();
-                resultSet[i].name = propsList[i].Name;
-                resultSet[i].type = propsList[i].FieldType;
-                object[] customAttrs = propsList[i].GetCustomAttributes(true);
-                foreach (object attr in customAttrs)
+                resultSet[i] = new ClientFieldInfo(propsList[i]);
+                foreach (object attr in propsList[i].GetCustomAttributes(true))
                 {
-                    if (!(attr is StoragePresenceAttribute))
+                    if (attr is StoragePresenceAttribute)
+                    {
+                        resultSet[i].ArraySize = (attr as StoragePresenceAttribute).ArraySize;
                         break;
-                    resultSet[i].arraySize = (attr as StoragePresenceAttribute).ArraySize;
-                    break;
+                    }
                 }
             }
 
@@ -42,33 +48,22 @@ namespace FileStructures.DBC.Cataclysm
 
         public static ListViewItem CreateTableRow(dynamic rowInfo, Type structInfo, Type rowStruct)
         {
-            // Get FieldInfo for the record, which is just the class's text name
             ClientFieldInfo[] structCustomInfo = GetStructure(structInfo);
-            int colCount = 0;
-            foreach (var columnInfo in structCustomInfo)
-                colCount += columnInfo.arraySize == 0 ? 1 : columnInfo.arraySize;
-            string[] rowData = new string[colCount];
+            List<string> rowData = new List<string>();
 
-            int i = 0;
             foreach (var columnInfo in structCustomInfo)
             {
-                var cellValue = rowStruct.GetField(columnInfo.name).GetValue(rowInfo);
+                var cellValue = rowStruct.GetField(columnInfo.Name).GetValue(rowInfo);
                 if (cellValue.GetType().IsArray)
                 {
                     foreach (object item in (cellValue as IEnumerable))
-                    {
-                        rowData[i] = item.ToString();
-                        ++i;
-                    }
+                        rowData.Add(item.ToString());
                 }
                 else
-                {
-                    rowData[i] = cellValue.ToString();
-                    ++i;
-                }
+                    rowData.Add(cellValue.ToString());
             }
 
-            return new ListViewItem(rowData);
+            return new ListViewItem(rowData.ToArray());
         }
     }
 }

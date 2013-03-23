@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using System.Xml;
 using System.Reflection;
-using FileStructures;
 using FileStructures.DBC;
-using FileStructures.DBC.Cataclysm;
 using DBFilesClient.NET;
 
 namespace MyDBCViewer
@@ -122,13 +115,13 @@ namespace MyDBCViewer
             // Load the header
             foreach (var col in columnsArray)
             {
-                int colWidth = (col.name.Length + 5) * 11 + 10; // -2 is buggy (autowidth)
+                int colWidth = (col.Name.Length + 5) * 11 + 10; // -2 is buggy (autowidth)
 
-                if (col.arraySize != 0)
-                    for (int i = 0; i < col.arraySize; ++i)
-                        _lvRecordList.Columns.Add(col.name + "[ " + i + " ]", colWidth, HorizontalAlignment.Left);
+                if (col.ArraySize != 0)
+                    for (int i = 0; i < col.ArraySize; ++i)
+                        _lvRecordList.Columns.Add(col.Name + "[ " + i + " ]", colWidth, HorizontalAlignment.Left);
                 else
-                    _lvRecordList.Columns.Add(col.name, colWidth, HorizontalAlignment.Left); // Autowidth based off items
+                    _lvRecordList.Columns.Add(col.Name, colWidth, HorizontalAlignment.Left); // Autowidth based off items
             }
 
             // Get the records
