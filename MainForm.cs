@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using FileStructures;
 using FileStructures.DBC;
+using FileStructures.DBC.Cataclysm;
 using MyDBCViewer.Extensions;
 using DBFilesClient.NET;
 
@@ -123,6 +124,7 @@ namespace MyDBCViewer
                         dbc.Image = Properties.Resources.CheckBox;
                         ++validatedCount;
                     }
+
                 if (validatedCount == alphabetical.DropDownItems.Count)
                     alphabetical.Image = Properties.Resources.CheckBox;
                 else alphabetical.Image = null;
@@ -204,7 +206,7 @@ namespace MyDBCViewer
             foreach (var record in dbcRecords)
                 _lvRecordList.Items.Add(BaseDbcFormat.CreateTableRow(record, storageType[0], record.GetType()));
 
-            foreach (var record in dbcRecords)
+            foreach (var record in dbcRecords) // Can't find any other way to iterate over Records
             {
                 ClientFieldInfo[] cfInfo = BaseDbcFormat.GetStructure(record.GetType());
                 foreach (ColumnHeader col in _lvRecordList.Columns)
@@ -220,7 +222,7 @@ namespace MyDBCViewer
                     }
                     col.Width = autoWidth ? -2 : 120;
                 }
-                break; //! Intended, cheap hack to get the first element in records
+                break;
             }
         }
 
@@ -240,5 +242,52 @@ namespace MyDBCViewer
 
         }
         #endregion
+
+        private void ExportToSQL(object sender, EventArgs e)
+        {
+            var output = new StreamWriter("output.sql");
+            output.AutoFlush = true;
+
+            List<string> parameterList = new List<string>();
+            dynamic recordWrapper = GetCurrentFileRecords();
+            foreach (var record in recordWrapper)
+            {
+                ClientFieldInfo[] fieldInfo = BaseDbcFormat.GetStructure(record.GetType());
+                foreach (ClientFieldInfo info in fieldInfo)
+                {
+                    if (info.ArraySize != 0)
+                        for (int i = 0; i < info.ArraySize; ++i)
+                            parameterList.Add(String.Format("`{0}_{1}`", info.Name, i));
+                    else
+                        parameterList.Add(String.Format("`{0}`", info.Name));
+                }
+                break;
+            }
+
+            output.WriteLine("INSERT INTO `{0}_dbc` ({1}) VALUES", SelectedFile, String.Join(", ", parameterList.ToArray()));
+            List<string> records = new List<string>();
+            foreach (var record in recordWrapper)
+            {
+                ClientFieldInfo[] fieldInfo = BaseDbcFormat.GetStructure(record.GetType());
+                List<string> fieldList = new List<string>();
+                foreach (var info in fieldInfo)
+                {
+                    if (info.ArraySize != 0)
+                        for (int i = 0; i < info.ArraySize; ++i)
+                            fieldList.Add(record.GetType().GetField(info.Name).GetValue(record)[i].ToString());
+                    else
+                        fieldList.Add(record.GetType().GetField(info.Name).GetValue(record).ToString());
+                }
+                records.Add(String.Format("({0})", String.Join(",", fieldList.ToArray())));
+            }
+            output.Write(String.Join("," + Environment.NewLine, records.ToArray()) + ";");
+            output.Close();
+        }
+
+        private dynamic GetCurrentFileRecords()
+        {
+            return CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile);
+        }
+
     }
 }

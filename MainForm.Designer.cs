@@ -32,14 +32,15 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadDBCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadDB2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._dbcVersionSelector = new System.Windows.Forms.ToolStripMenuItem();
             this._WoTLKBuild = new System.Windows.Forms.ToolStripMenuItem();
             this._CataclysmBuild = new System.Windows.Forms.ToolStripMenuItem();
-            this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.miscToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._lvRecordList = new System.Windows.Forms.ListView();
             this.BackgroundLoader = new System.ComponentModel.BackgroundWorker();
-            this.loadDB2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FilterButton = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,7 +51,7 @@
             this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.exportToolStripMenuItem});
+            this.miscToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(3, 1);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(97, 24);
@@ -71,8 +72,14 @@
             // 
             this.loadDBCToolStripMenuItem.BackColor = System.Drawing.SystemColors.Control;
             this.loadDBCToolStripMenuItem.Name = "loadDBCToolStripMenuItem";
-            this.loadDBCToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadDBCToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.loadDBCToolStripMenuItem.Text = "Load DBC";
+            // 
+            // loadDB2ToolStripMenuItem
+            // 
+            this.loadDB2ToolStripMenuItem.Name = "loadDB2ToolStripMenuItem";
+            this.loadDB2ToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.loadDB2ToolStripMenuItem.Text = "Load DB2";
             // 
             // _dbcVersionSelector
             // 
@@ -80,34 +87,36 @@
             this._WoTLKBuild,
             this._CataclysmBuild});
             this._dbcVersionSelector.Name = "_dbcVersionSelector";
-            this._dbcVersionSelector.Size = new System.Drawing.Size(152, 22);
+            this._dbcVersionSelector.Size = new System.Drawing.Size(139, 22);
             this._dbcVersionSelector.Text = "DBC Version";
             // 
             // _WoTLKBuild
             // 
             this._WoTLKBuild.Name = "_WoTLKBuild";
-            this._WoTLKBuild.Size = new System.Drawing.Size(152, 22);
+            this._WoTLKBuild.Size = new System.Drawing.Size(131, 22);
             this._WoTLKBuild.Text = "3.3.5 12340";
             // 
             // _CataclysmBuild
             // 
             this._CataclysmBuild.Name = "_CataclysmBuild";
-            this._CataclysmBuild.Size = new System.Drawing.Size(152, 22);
+            this._CataclysmBuild.Size = new System.Drawing.Size(131, 22);
             this._CataclysmBuild.Text = "4.3.4 15595";
             // 
-            // exportToolStripMenuItem
+            // miscToolStripMenuItem
             // 
-            this.exportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toSQLToolStripMenuItem});
-            this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
-            this.exportToolStripMenuItem.Text = "Export";
+            this.miscToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toSQLToolStripMenuItem,
+            this.FilterButton});
+            this.miscToolStripMenuItem.Name = "miscToolStripMenuItem";
+            this.miscToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
+            this.miscToolStripMenuItem.Text = "Misc.";
             // 
             // toSQLToolStripMenuItem
             // 
             this.toSQLToolStripMenuItem.Name = "toSQLToolStripMenuItem";
-            this.toSQLToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
-            this.toSQLToolStripMenuItem.Text = "To SQL";
+            this.toSQLToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.toSQLToolStripMenuItem.Text = "Export as SQL";
+            this.toSQLToolStripMenuItem.Click += new System.EventHandler(this.ExportToSQL);
             // 
             // _lvRecordList
             // 
@@ -133,11 +142,11 @@
             this.BackgroundLoader.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundLoaderProgressInform);
             this.BackgroundLoader.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundLoaderProgressCompleteInform);
             // 
-            // loadDB2ToolStripMenuItem
+            // FilterButton
             // 
-            this.loadDB2ToolStripMenuItem.Name = "loadDB2ToolStripMenuItem";
-            this.loadDB2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.loadDB2ToolStripMenuItem.Text = "Load DB2";
+            this.FilterButton.Name = "FilterButton";
+            this.FilterButton.Size = new System.Drawing.Size(152, 22);
+            this.FilterButton.Text = "Filter...";
             // 
             // MainForm
             // 
@@ -163,7 +172,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadDBCToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem miscToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toSQLToolStripMenuItem;
         private System.Windows.Forms.ListView _lvRecordList;
         private System.ComponentModel.BackgroundWorker BackgroundLoader;
@@ -171,6 +180,7 @@
         private System.Windows.Forms.ToolStripMenuItem _WoTLKBuild;
         private System.Windows.Forms.ToolStripMenuItem _CataclysmBuild;
         private System.Windows.Forms.ToolStripMenuItem loadDB2ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FilterButton;
     }
 }
 
