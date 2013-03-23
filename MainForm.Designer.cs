@@ -32,7 +32,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadDBCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.editStructuresToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._dbcVersionSelector = new System.Windows.Forms.ToolStripMenuItem();
             this._WoTLKBuild = new System.Windows.Forms.ToolStripMenuItem();
             this._CataclysmBuild = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,7 +60,6 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadDBCToolStripMenuItem,
-            this.editStructuresToolStripMenuItem,
             this._dbcVersionSelector});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -71,14 +69,8 @@
             // 
             this.loadDBCToolStripMenuItem.BackColor = System.Drawing.SystemColors.Control;
             this.loadDBCToolStripMenuItem.Name = "loadDBCToolStripMenuItem";
-            this.loadDBCToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.loadDBCToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.loadDBCToolStripMenuItem.Text = "Load DBC";
-            // 
-            // editStructuresToolStripMenuItem
-            // 
-            this.editStructuresToolStripMenuItem.Name = "editStructuresToolStripMenuItem";
-            this.editStructuresToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
-            this.editStructuresToolStripMenuItem.Text = "Edit Structures";
             // 
             // _dbcVersionSelector
             // 
@@ -86,19 +78,19 @@
             this._WoTLKBuild,
             this._CataclysmBuild});
             this._dbcVersionSelector.Name = "_dbcVersionSelector";
-            this._dbcVersionSelector.Size = new System.Drawing.Size(150, 22);
+            this._dbcVersionSelector.Size = new System.Drawing.Size(152, 22);
             this._dbcVersionSelector.Text = "DBC Version";
             // 
             // _WoTLKBuild
             // 
             this._WoTLKBuild.Name = "_WoTLKBuild";
-            this._WoTLKBuild.Size = new System.Drawing.Size(131, 22);
+            this._WoTLKBuild.Size = new System.Drawing.Size(152, 22);
             this._WoTLKBuild.Text = "3.3.5 12340";
             // 
             // _CataclysmBuild
             // 
             this._CataclysmBuild.Name = "_CataclysmBuild";
-            this._CataclysmBuild.Size = new System.Drawing.Size(131, 22);
+            this._CataclysmBuild.Size = new System.Drawing.Size(152, 22);
             this._CataclysmBuild.Text = "4.3.4 15595";
             // 
             // exportToolStripMenuItem
@@ -163,7 +155,6 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadDBCToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editStructuresToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toSQLToolStripMenuItem;
         private System.Windows.Forms.ListView _lvRecordList;

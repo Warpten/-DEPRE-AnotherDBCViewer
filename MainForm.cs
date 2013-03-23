@@ -26,8 +26,11 @@ namespace MyDBCViewer
         private void OnApplicationLoad(object sender, EventArgs e)
         {
             // Select the build - Pick the last one
-            _dbcVersionSelector.DropDownItems[_dbcVersionSelector.DropDownItems.Count - 1].BackColor = Color.LightGreen;
-            SelectedBuild = _dbcVersionSelector.DropDownItems[_dbcVersionSelector.DropDownItems.Count - 1].Name.Substring(1).Replace("Build", "");
+            OnBuildSelection(_dbcVersionSelector.DropDownItems[_dbcVersionSelector.DropDownItems.Count - 1], null);
+
+            // Bind event hook on the build enum
+            foreach (var build in _dbcVersionSelector.DropDownItems)
+                (build as ToolStripMenuItem).Click += new EventHandler(OnBuildSelection);
 
             // Populate the submenu with DBCs.
             try
@@ -52,13 +55,12 @@ namespace MyDBCViewer
                         items[i] = new ToolStripMenuItem(dbcFileName);
                         items[i].Click += new EventHandler(this.OnDbcFileSelection);
 
-                        // Try to look for it's definition - if found, set background to lime green.
                         try
                         {
                             Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName);
                             if (fileInfo == null)
                                 throw new Exception();
-                            items[i].BackColor = Color.LightGreen;
+                            items[i].Image = Properties.Resources.CheckBox;
                         }
                         catch (Exception /*ex*/) { }
 
@@ -75,6 +77,21 @@ namespace MyDBCViewer
                 MessageBox.Show("You need to put your .dbc files into the /dbc/ subdirectory!");
                 Application.Exit();
             }
+        }
+
+        private void OnBuildSelection(object sender, EventArgs e)
+        {
+            foreach (ToolStripMenuItem item in _dbcVersionSelector.DropDownItems)
+                item.Image = null;
+            (sender as ToolStripMenuItem).Image = Properties.Resources.CheckBox;
+            SelectedBuild = (sender as ToolStripMenuItem).Name.Substring(1).Replace("Build", "");
+
+            foreach (ToolStripMenuItem alphabetical in loadDBCToolStripMenuItem.DropDownItems)
+                foreach (ToolStripMenuItem dbc in alphabetical.DropDownItems)
+                    if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbc.Text) == null)
+                        dbc.Image = null;
+                    else
+                        dbc.Image = Properties.Resources.CheckBox;
         }
 
         private void OnDbcFileSelection(object sender, EventArgs e)
