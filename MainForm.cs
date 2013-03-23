@@ -16,10 +16,10 @@ namespace MyDBCViewer
 {
     public partial class MainForm : Form
     {
-        public string SelectedBuild;                    //< String identifying the build (Cataclysm or WoTLK)
+        public static string SelectedBuild;             //< String identifying the build (Cataclysm or WoTLK)
         public static object CurrentDBClientFile;       //< Current DBC/DB2 being read
         public static Type CurrentDBClientFileType;     //< Underlying type of the object above
-        public static string SelectedFile;              //< Name of the file currently read (no extension)
+        public static string SelectedFile;              //< File currently displayed           
 
         public MainForm()
         {
@@ -110,8 +110,10 @@ namespace MyDBCViewer
         {
             foreach (ToolStripMenuItem item in _dbcVersionSelector.DropDownItems)
                 item.Image = null;
+
             (sender as ToolStripMenuItem).Image = Properties.Resources.CheckBox;
             SelectedBuild = (sender as ToolStripMenuItem).Name.Substring(1).Replace("Build", "");
+            BuildIdStatusStrip.Text = "@" + SelectedBuild;
 
             foreach (ToolStripMenuItem alphabetical in loadDBCToolStripMenuItem.DropDownItems)
             {
@@ -140,21 +142,19 @@ namespace MyDBCViewer
         #region File loaders (DBC, DB2)
         private void OnDb2FileSelection(object sender, EventArgs e)
         {
-            SelectedFile = (sender as ToolStripMenuItem).Text;
-            InternalFileSelectionHandler("DB2");
+            InternalFileSelectionHandler((sender as ToolStripMenuItem).Text, "DB2");
         }
 
         private void OnDbcFileSelection(object sender, EventArgs e)
         {
-            SelectedFile = (sender as ToolStripMenuItem).Text;
-            InternalFileSelectionHandler("DBC");
+            InternalFileSelectionHandler((sender as ToolStripMenuItem).Text, "DBC");
         }
 
-        protected void InternalFileSelectionHandler(string fileType)
+        protected void InternalFileSelectionHandler(string fileName, string fileType)
         {
             try
             {
-                Type classType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, SelectedFile, fileType);
+                Type classType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName, fileType);
                 ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType);
                 if (columnsArray.Length == 0)
                     throw new Exception("Missing definition!");
@@ -167,22 +167,24 @@ namespace MyDBCViewer
                 Type[] typeArgs = { classType };
                 CurrentDBClientFileType = target.MakeGenericType(typeArgs);
                 CurrentDBClientFile = Activator.CreateInstance(CurrentDBClientFileType);
-                using (var strm = new FileStream(String.Format("{0}\\{1}.{0}", fileType.ToLower(), SelectedFile), FileMode.Open))
+                using (var strm = new FileStream(String.Format("{0}\\{1}.{0}", fileType.ToLower(), fileName), FileMode.Open))
                     target.MakeGenericType(typeArgs)
                         .GetMethod("Load", new Type[] { typeof(FileStream) })
                         .Invoke(CurrentDBClientFile, new object[] { strm });
 
                 // Now that this is populated, build our columns
-                LoadTableStructure(columnsArray, fileType);
+                LoadTableStructure(columnsArray, fileName, fileType);
+
+                SetSelectedFile(fileName, fileType.ToLower());
             }
             catch (Exception /*ex*/)
             {
-                Utils.BoxError("No definition found for {0}.{2} ({1})", SelectedFile, SelectedBuild, fileType.ToLower());
+                Utils.BoxError("No definition found for {0}.{2} ({1})", fileName, SelectedBuild, fileType.ToLower());
             }
         }
         #endregion
 
-        private void LoadTableStructure(ClientFieldInfo[] columnsArray, string fileType)
+        private void LoadTableStructure(ClientFieldInfo[] columnsArray, string fileName, string fileType)
         {
             _lvRecordList.Columns.Clear();
             _lvRecordList.Items.Clear();
@@ -200,7 +202,7 @@ namespace MyDBCViewer
             }
 
             // Get the records
-            Type[] storageType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{0}.{1}.{2}Entry", fileType, SelectedBuild, SelectedFile) };
+            Type[] storageType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{0}.{1}.{2}Entry", fileType, SelectedBuild, fileName) };
             CurrentDBClientFileType = typeof(DBCStorage<>).MakeGenericType(storageType);
             dynamic dbcRecords = CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile);
             foreach (var record in dbcRecords)
@@ -287,6 +289,12 @@ namespace MyDBCViewer
         private dynamic GetCurrentFileRecords()
         {
             return CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile);
+        }
+
+        private void SetSelectedFile(string fileType, string fileExt)
+        {
+            SelectedFile = fileType;
+            CurrentFileStatusStrip.Text = String.Format("{0}.{1}", fileType, fileExt);
         }
 
     }

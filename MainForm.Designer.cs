@@ -38,10 +38,15 @@
             this._CataclysmBuild = new System.Windows.Forms.ToolStripMenuItem();
             this.miscToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FilterButton = new System.Windows.Forms.ToolStripMenuItem();
             this._lvRecordList = new System.Windows.Forms.ListView();
             this.BackgroundLoader = new System.ComponentModel.BackgroundWorker();
-            this.FilterButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.CurrentFileStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
+            this.BuildIdStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -54,7 +59,7 @@
             this.miscToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(3, 1);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(97, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(92, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -114,9 +119,15 @@
             // toSQLToolStripMenuItem
             // 
             this.toSQLToolStripMenuItem.Name = "toSQLToolStripMenuItem";
-            this.toSQLToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.toSQLToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
             this.toSQLToolStripMenuItem.Text = "Export as SQL";
             this.toSQLToolStripMenuItem.Click += new System.EventHandler(this.ExportToSQL);
+            // 
+            // FilterButton
+            // 
+            this.FilterButton.Name = "FilterButton";
+            this.FilterButton.Size = new System.Drawing.Size(145, 22);
+            this.FilterButton.Text = "Filter...";
             // 
             // _lvRecordList
             // 
@@ -142,17 +153,41 @@
             this.BackgroundLoader.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundLoaderProgressInform);
             this.BackgroundLoader.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundLoaderProgressCompleteInform);
             // 
-            // FilterButton
+            // statusStrip1
             // 
-            this.FilterButton.Name = "FilterButton";
-            this.FilterButton.Size = new System.Drawing.Size(152, 22);
-            this.FilterButton.Text = "Filter...";
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1,
+            this.CurrentFileStatusStrip,
+            this.BuildIdStatusStrip});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 411);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(920, 22);
+            this.statusStrip1.TabIndex = 9;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(71, 17);
+            this.toolStripStatusLabel1.Text = "Current File:";
+            // 
+            // CurrentFileStatusStrip
+            // 
+            this.CurrentFileStatusStrip.Name = "CurrentFileStatusStrip";
+            this.CurrentFileStatusStrip.Size = new System.Drawing.Size(36, 17);
+            this.CurrentFileStatusStrip.Text = "None";
+            // 
+            // BuildIdStatusStrip
+            // 
+            this.BuildIdStatusStrip.Name = "BuildIdStatusStrip";
+            this.BuildIdStatusStrip.Size = new System.Drawing.Size(0, 17);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(920, 433);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this._lvRecordList);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -162,6 +197,8 @@
             this.Load += new System.EventHandler(this.OnApplicationLoad);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -181,6 +218,10 @@
         private System.Windows.Forms.ToolStripMenuItem _CataclysmBuild;
         private System.Windows.Forms.ToolStripMenuItem loadDB2ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem FilterButton;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel CurrentFileStatusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel BuildIdStatusStrip;
     }
 }
 
