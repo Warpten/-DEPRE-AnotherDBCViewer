@@ -113,11 +113,26 @@ namespace MyDBCViewer
             SelectedBuild = (sender as ToolStripMenuItem).Name.Substring(1).Replace("Build", "");
 
             foreach (ToolStripMenuItem alphabetical in loadDBCToolStripMenuItem.DropDownItems)
+            {
+                int validatedCount = 0;
                 foreach (ToolStripMenuItem dbc in alphabetical.DropDownItems)
                     if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbc.Text) == null)
                         dbc.Image = null;
                     else
+                    {
                         dbc.Image = Properties.Resources.CheckBox;
+                        ++validatedCount;
+                    }
+                if (validatedCount == alphabetical.DropDownItems.Count)
+                    alphabetical.Image = Properties.Resources.CheckBox;
+                else alphabetical.Image = null;
+            }
+
+            foreach (ToolStripMenuItem dbc in loadDB2ToolStripMenuItem.DropDownItems)
+                if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, dbc.Text) == null)
+                    dbc.Image = null;
+                else
+                    dbc.Image = Properties.Resources.CheckBox;
         }
 
         #region File loaders (DBC, DB2)
