@@ -48,13 +48,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientDefinitions\BaseDbcFormat.cs" />
-    <Compile Include="ClientDefinitions\Cataclysm\AreaGroupEntry.cs" />
-    <Compile Include="ClientDefinitions\Cataclysm\AreaTableEntry.cs" />
-    <Compile Include="ClientDefinitions\Cataclysm\gtSpellScalingEntry.cs" />
-    <Compile Include="ClientDefinitions\Cataclysm\OverrideSpellDataEntry.cs" />
-    <Compile Include="ClientDefinitions\Cataclysm\ScreenEffectEntry.cs" />
-    <Compile Include="ClientDefinitions\Cataclysm\SkillLineAbilityEntry.cs" />
-    <Compile Include="ClientDefinitions\Cataclysm\SpellDescriptionVariablesEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaGroupEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaTableEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\gtSpellScalingEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\OverrideSpellDataEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ScreenEffectEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\SkillLineAbilityEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\SpellDescriptionVariablesEntry.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -91,7 +91,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ClientDefinitions\WoTLK\" />
+    <Folder Include="ClientDefinitions\DB2\Cataclysm\" />
+    <Folder Include="ClientDefinitions\DB2\WoTLK\" />
+    <Folder Include="ClientDefinitions\DBC\WoTLK\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\CheckBox.png" />

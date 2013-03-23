@@ -72,10 +72,26 @@ namespace MyDBCViewer
                             loadDBCToolStripMenuItem.DropDownItems.Add(alphabeticalMenuItems[i]);
                 }
             }
-            catch (System.IO.DirectoryNotFoundException /*ex*/)
+            catch (DirectoryNotFoundException /*ex*/)
             {
                 MessageBox.Show("You need to put your .dbc files into the /dbc/ subdirectory!");
                 Application.Exit();
+            }
+
+            // Load DB2 files
+            try
+            {
+                string[] db2Names = Directory.GetFiles("db2/", "*.db2", SearchOption.TopDirectoryOnly);
+
+                foreach (string file in db2Names)
+                    loadDB2ToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(file.Replace(".db2", "").Replace("db2/", "")));
+
+                foreach (ToolStripMenuItem item in loadDB2ToolStripMenuItem.DropDownItems)
+                    item.Click += new EventHandler(OnDb2FileSelection);
+            }
+            catch (Exception /*ex*/)
+            {
+                MessageBox.Show("You need to put your .db2 files into the /db2/ subdirectory!");
             }
         }
 
@@ -92,6 +108,37 @@ namespace MyDBCViewer
                         dbc.Image = null;
                     else
                         dbc.Image = Properties.Resources.CheckBox;
+        }
+
+        private void OnDb2FileSelection(object sender, EventArgs e)
+        {
+            SelectedFile = (sender as ToolStripMenuItem).Text;
+            var assembly = Assembly.GetExecutingAssembly();
+
+            try
+            {
+                Type classType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, SelectedFile);
+                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType);
+                if (columnsArray.Length == 0)
+                    throw new Exception("Missing definition!");
+
+                // Load the DBC file
+                Type[] typeArgs = { classType };
+                DBCStoreType = typeof(DBCStorage<>).MakeGenericType(typeArgs);
+                CurrentDBCStore = Activator.CreateInstance(DBCStoreType);
+                using (var strm = new FileStream(String.Format("db2\\{0}.db2", SelectedFile), FileMode.Open))
+                    typeof(DBCStorage<>)
+                        .MakeGenericType(typeArgs)
+                        .GetMethod("Load", new Type[] { typeof(FileStream) })
+                        .Invoke(CurrentDBCStore, new object[] { strm });
+
+                // Now that this is populated, build our columns
+                LoadTableStructure(columnsArray, "DB2");
+            }
+            catch (Exception /*ex*/)
+            {
+                MessageBox.Show(String.Format("No definition found for {0}.db2 ({1})", SelectedFile, SelectedBuild), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void OnDbcFileSelection(object sender, EventArgs e)
@@ -117,15 +164,15 @@ namespace MyDBCViewer
                         .Invoke(CurrentDBCStore, new object[] { strm });
 
                 // Now that this is populated, build our columns
-                LoadTableStructure(columnsArray);
+                LoadTableStructure(columnsArray, "DBC");
             }
             catch (Exception /*ex*/)
             {
-                MessageBox.Show(String.Format("No definition found for {0}.dbc ({1})", SelectedFile, SelectedBuild));
+                MessageBox.Show(String.Format("No definition found for {0}.dbc ({1})", SelectedFile, SelectedBuild), "Error!",MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void LoadTableStructure(ClientFieldInfo[] columnsArray)
+        private void LoadTableStructure(ClientFieldInfo[] columnsArray, string fileType)
         {
             _lvRecordList.Columns.Clear();
             _lvRecordList.Items.Clear();
@@ -143,7 +190,7 @@ namespace MyDBCViewer
             }
 
             // Get the records
-            Type[] storageType = { Assembly.GetExecutingAssembly().GetType("FileStructures.DBC." + SelectedBuild + "." + SelectedFile + "Entry") };
+            Type[] storageType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{0}.{1}.{2}Entry", fileType, SelectedBuild, SelectedFile) };
             Type genType = DBCStoreType = typeof(DBCStorage<>).MakeGenericType(storageType);
             dynamic dbcRecords = genType.GetProperty("Records").GetValue(CurrentDBCStore);
             foreach (var record in dbcRecords)

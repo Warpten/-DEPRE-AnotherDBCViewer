@@ -39,6 +39,7 @@
             this.toSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._lvRecordList = new System.Windows.Forms.ListView();
             this.BackgroundLoader = new System.ComponentModel.BackgroundWorker();
+            this.loadDB2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,6 +61,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadDBCToolStripMenuItem,
+            this.loadDB2ToolStripMenuItem,
             this._dbcVersionSelector});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -131,6 +133,12 @@
             this.BackgroundLoader.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundLoaderProgressInform);
             this.BackgroundLoader.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundLoaderProgressCompleteInform);
             // 
+            // loadDB2ToolStripMenuItem
+            // 
+            this.loadDB2ToolStripMenuItem.Name = "loadDB2ToolStripMenuItem";
+            this.loadDB2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadDB2ToolStripMenuItem.Text = "Load DB2";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -162,6 +170,7 @@
         private System.Windows.Forms.ToolStripMenuItem _dbcVersionSelector;
         private System.Windows.Forms.ToolStripMenuItem _WoTLKBuild;
         private System.Windows.Forms.ToolStripMenuItem _CataclysmBuild;
+        private System.Windows.Forms.ToolStripMenuItem loadDB2ToolStripMenuItem;
     }
 }
 
