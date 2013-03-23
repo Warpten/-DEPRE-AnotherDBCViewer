@@ -55,6 +55,7 @@
     <Compile Include="ClientDefinitions\Cataclysm\ScreenEffectEntry.cs" />
     <Compile Include="ClientDefinitions\Cataclysm\SkillLineAbilityEntry.cs" />
     <Compile Include="ClientDefinitions\Cataclysm\SpellDescriptionVariablesEntry.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

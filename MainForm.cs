@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 using FileStructures.DBC;
+using MyDBCViewer.Extensions;
 using DBFilesClient.NET;
 
 namespace MyDBCViewer
@@ -54,7 +55,7 @@ namespace MyDBCViewer
                         // Try to look for it's definition - if found, set background to lime green.
                         try
                         {
-                            Type fileInfo = Assembly.GetExecutingAssembly().GetType("FileStructures.DBC." + SelectedBuild + "." + dbcFileName + "Entry");
+                            Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName);
                             if (fileInfo == null)
                                 throw new Exception();
                             items[i].BackColor = Color.LightGreen;
@@ -83,7 +84,7 @@ namespace MyDBCViewer
 
             try
             {
-                Type classType = assembly.GetType("FileStructures.DBC." + SelectedBuild + "." + SelectedFile + "Entry");
+                Type classType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, SelectedFile);
                 ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType);
                 if (columnsArray.Length == 0)
                     throw new Exception("Missing definition!");
