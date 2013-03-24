@@ -1,30 +1,48 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using System.IO;
-using System.Reflection;
 using System.Collections.Generic;
-using FileStructures;
-using FileStructures.DBC;
-using FileStructures.DBC.Cataclysm;
-using MyDBCViewer.Extensions;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Windows.Forms;
 using DBFilesClient.NET;
+using FileStructures;
+using MyDBCViewer.Extensions;
+using MyDBCViewer.Properties;
 
 namespace MyDBCViewer
 {
     public partial class MainForm : Form
     {
-        public static string SelectedBuild;             //< String identifying the build (Cataclysm or WoTLK)
-        public static object CurrentStorage;            //< Current DBC/DB2 being read
-        public static Type CurrentStorageType;          //< Underlying type of the object above
-        public static Type CurrentDbFileType;           //< Inner structure in the current file (DBCStorage<T>: T)
-        public static string SelectedFile;              //< File currently displayed
+        public static Type CurrentDbFileType;
+        public static object CurrentStorage;
+
+        //< Current DBC/DB2 being read
+        public static Type CurrentStorageType;
+
+        public static string SelectedBuild; //< String identifying the build (Cataclysm or WoTLK)
+
+        //< Underlying type of the object above
+        //< Inner structure in the current file (DBCStorage<T>: T)
+        public static string SelectedFile; //< File currently displayed
 
         public MainForm()
         {
             InitializeComponent();
+        }
+
+        // ReSharper disable InconsistentNaming
+        private void ExportToSQL(object sender, EventArgs e)
+
+        // ReSharper restore InconsistentNaming
+        {
+            SQLExportWorker.RunWorkerAsync();
+        }
+
+        private dynamic GetCurrentStorage()
+        {
+            return CurrentStorageType.GetProperty("Records").GetValue(CurrentStorage);
         }
 
         private void OnApplicationLoad(object sender, EventArgs e)
@@ -32,11 +50,11 @@ namespace MyDBCViewer
             // Select latest build
             OnBuildSelection(_dbcVersionSelector.DropDownItems.LastItem(), null);
 
-            foreach (var build in _dbcVersionSelector.DropDownItems) // Bind event hook on the build enum
-                (build as ToolStripMenuItem).Click += new EventHandler(OnBuildSelection);
+            foreach (ToolStripMenuItem build in _dbcVersionSelector.DropDownItems) // Bind event hook on the build enum
+                build.Click += OnBuildSelection;
 
             #region Load every DBC
-            // Populate the submenu with DBCs.
+
             try
             {
                 string[] dbcNames = Directory.GetFiles("dbc/", "*.dbc", SearchOption.TopDirectoryOnly);
@@ -46,22 +64,26 @@ namespace MyDBCViewer
                     // Easy sort
                     dbcNames = dbcNames.OrderBy(d => d).ToArray();
 
-                    ToolStripMenuItem[] alphabeticalMenuItems = new ToolStripMenuItem[26];
+                    var alphabeticalMenuItems = new ToolStripMenuItem[26];
                     for (int i = 0; i < 26; ++i)
-                        alphabeticalMenuItems[i] = new ToolStripMenuItem(((char)Enumerable.Range('A', 'Z' - 'A' + 1).ElementAt(i)).ToString());
+                        alphabeticalMenuItems[i] =
+                            new ToolStripMenuItem(((char)Enumerable.Range('A', 'Z' - 'A' + 1).ElementAt(i)).ToString(CultureInfo.InvariantCulture));
 
-                    ToolStripMenuItem[] items = new ToolStripMenuItem[dbcNames.Length];
+                    var items = new ToolStripMenuItem[dbcNames.Length];
                     for (int i = 0; i < dbcNames.Length; ++i)
                     {
                         string dbcFileName = dbcNames[i].Replace(".dbc", "").Replace("dbc/", "");
-                        int offset = (int)dbcFileName[0].ToString().ToUpper()[0] - 65;
+                        int offset = dbcFileName[0].ToString(CultureInfo.InvariantCulture).ToUpper()[0] - 65;
 
                         items[i] = new ToolStripMenuItem(dbcFileName);
 
-                        if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName.AsReflectionTypeIdentifier()) != null)
+                        if (
+                            Assembly.GetExecutingAssembly()
+                                    .GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild,
+                                                   dbcFileName.AsReflectionTypeIdentifier()) != null)
                         {
-                            items[i].Image = Properties.Resources.CheckBox;
-                            items[i].Click += new EventHandler(this.OnDbcFileSelection);
+                            items[i].Image = Resources.CheckBox;
+                            items[i].Click += OnDbcFileSelection;
                         }
 
                         alphabeticalMenuItems[offset].DropDownItems.Add(items[i]);
@@ -74,33 +96,40 @@ namespace MyDBCViewer
             }
             catch (DirectoryNotFoundException /*ex*/)
             {
-                MessageBox.Show("You need to put your .dbc files into the /dbc/ subdirectory!");
+                MessageBox.Show(@"You need to put your .dbc files into the /dbc/ subdirectory!");
                 Application.Exit();
             }
-            #endregion
+
+            #endregion Load every DBC
 
             #region Load every DB2 file
+
             try
             {
                 string[] db2Names = Directory.GetFiles("db2/", "*.db2", SearchOption.TopDirectoryOnly);
 
                 foreach (string file in db2Names)
-                    loadDB2ToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(file.Replace(".db2", "").Replace("db2/", "")));
+                    loadDB2ToolStripMenuItem.DropDownItems.Add(
+                        new ToolStripMenuItem(file.Replace(".db2", "").Replace("db2/", "")));
 
                 foreach (ToolStripMenuItem item in loadDB2ToolStripMenuItem.DropDownItems)
                 {
-                    if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, item.Text.AsReflectionTypeIdentifier()) != null)
+                    if (
+                        Assembly.GetExecutingAssembly()
+                                .GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild,
+                                               item.Text.AsReflectionTypeIdentifier()) != null)
                     {
-                        item.Image = Properties.Resources.CheckBox;
-                        item.Click += new EventHandler(OnDb2FileSelection);
+                        item.Image = Resources.CheckBox;
+                        item.Click += OnDb2FileSelection;
                     }
                 }
             }
             catch (Exception /*ex*/)
             {
-                MessageBox.Show("You need to put your .db2 files into the /db2/ subdirectory!");
+                MessageBox.Show(@"You need to put your .db2 files into the /db2/ subdirectory!");
             }
-            #endregion
+
+            #endregion Load every DB2 file
         }
 
         private void OnBuildSelection(object sender, EventArgs e)
@@ -108,148 +137,42 @@ namespace MyDBCViewer
             foreach (ToolStripMenuItem item in _dbcVersionSelector.DropDownItems)
                 item.Image = null;
 
-            (sender as ToolStripMenuItem).Image = Properties.Resources.CheckBox;
-            SelectedBuild = (sender as ToolStripMenuItem).Name.Substring(1).Replace("Build", "");
-            BuildIdStatusStrip.Text = "@ " + SelectedBuild;
+            ((ToolStripMenuItem)sender).Image = Resources.CheckBox;
+            SelectedBuild = ((ToolStripMenuItem)sender).Name.Substring(1).Replace("Build", "");
+            BuildIdStatusStrip.Text = @"@ " + SelectedBuild;
 
             foreach (ToolStripMenuItem alphabetical in loadDBCToolStripMenuItem.DropDownItems)
             {
                 int validatedCount = 0;
                 foreach (ToolStripMenuItem dbc in alphabetical.DropDownItems)
-                    if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbc.Text.AsReflectionTypeIdentifier()) == null)
+                    if (
+                        Assembly.GetExecutingAssembly()
+                                .GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild,
+                                               dbc.Text.AsReflectionTypeIdentifier()) == null)
                         dbc.Image = null;
                     else
                     {
-                        dbc.Image = Properties.Resources.CheckBox;
+                        dbc.Image = Resources.CheckBox;
                         ++validatedCount;
                     }
 
-                if (validatedCount == alphabetical.DropDownItems.Count)
-                    alphabetical.Image = Properties.Resources.CheckBox;
-                else alphabetical.Image = null;
+                alphabetical.Image = validatedCount == alphabetical.DropDownItems.Count ? Resources.CheckBox : null;
             }
 
             foreach (ToolStripMenuItem dbc in loadDB2ToolStripMenuItem.DropDownItems)
-                if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, dbc.Text.AsReflectionTypeIdentifier()) == null)
-                    dbc.Image = null;
-                else
-                    dbc.Image = Properties.Resources.CheckBox;
+                dbc.Image = Assembly.GetExecutingAssembly()
+                                    .GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild,
+                                                   dbc.Text.AsReflectionTypeIdentifier()) == null ? null : Resources.CheckBox;
         }
 
-        #region File loaders (DBC, DB2)
-        private void OnDb2FileSelection(object sender, EventArgs e)
-        {
-            InternalFileSelectionHandler((sender as ToolStripMenuItem).Text, "DB2", typeof(DB2Storage<>));
-        }
-
-        private void OnDbcFileSelection(object sender, EventArgs e)
-        {
-            InternalFileSelectionHandler((sender as ToolStripMenuItem).Text, "DBC", typeof(DBCStorage<>));
-        }
-
-        protected void InternalFileSelectionHandler(string fileName, string fileType, Type target)
-        {
-            BackgroundLoader.CancelAsync();
-            BackgroundLoader.RunWorkerAsync(new BackgroundWorkerSettings(fileName, fileType, target));
-        }
-        #endregion
-
-        #region Background DBC/DB2 loader
-        private void BackgroundLoadFile(object sender, DoWorkEventArgs e)
-        {
-            BackgroundWorkerSettings settings = e.Argument as BackgroundWorkerSettings;
-
-            try
-            {
-                BackgroundLoader.ReportProgress(0);
-
-                /// TODO: Nuke out as MUCH reflection as possible
-                CurrentDbFileType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, settings.FileName.AsReflectionTypeIdentifier(), settings.FileType);
-                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(CurrentDbFileType);
-                if (columnsArray.Length == 0)
-                    throw new Exception(String.Format("No definition found for {0}.{2} ({1})", settings.FileName, SelectedBuild, settings.FileType.ToLower()));
-
-                BackgroundLoader.ReportProgress(10);
-
-                // Load the file
-                CurrentStorageType = settings.TargetType.MakeGenericType(new Type[] { CurrentDbFileType });
-                CurrentStorage = Activator.CreateInstance(CurrentStorageType);
-                using (var strm = new FileStream(String.Format("{0}\\{1}.{0}", settings.FileType.ToLower(), settings.FileName), FileMode.Open))
-                    CurrentStorageType
-                        .GetMethod("Load", new Type[] { typeof(FileStream) })
-                        .Invoke(CurrentStorage, new object[] { strm });
-
-                BackgroundLoader.ReportProgress(40);
-                BackgroundWorkerResultWrapper result = new BackgroundWorkerResultWrapper(settings, CurrentDbFileType);
-
-                #region Columns loading, set to hidden
-                foreach (var col in columnsArray)
-                    if (col.ArraySize != 0)
-                        for (int i = 0; i < col.ArraySize; ++i)
-                            result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left, i);
-                    else
-                        result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left);
-                #endregion
-
-                BackgroundLoader.ReportProgress(80);
-
-                /// THIS IS THE MOST TIME-CONSUMING PROCESS, ALONG WITH RENDERING
-                // Get the records
-                using (dynamic dbcRecords = CurrentStorageType.GetProperty("Records").GetValue(CurrentStorage))
-                    foreach (var record in dbcRecords)
-                        result.AddRow(BaseDbcFormat.CreateTableRow(record, CurrentDbFileType, record.GetType()));
-
-                BackgroundLoader.ReportProgress(100);
-
-                SetSelectedFile(settings.FileName, settings.FileType.ToLower());
-                e.Result = result;
-            }
-            catch (Exception ex)
-            {
-                e.Result = ex.Message;
-                e.Cancel = true;
-            }
-        }
-
-        private void BackgroundLoaderProgressInform(object sender, ProgressChangedEventArgs e)
+        private void OnSQlWriteProgressUpdate(object sender, ProgressChangedEventArgs e)
         {
             if (e.ProgressPercentage == 0)
-                BackgroundWorkProgressBar.Visible = true;
+                sqlExportProgressBar.Visible = true;
             else if (e.ProgressPercentage == 100)
-                BackgroundWorkProgressBar.Visible = false;
+                sqlExportProgressBar.Visible = false;
 
-            BackgroundWorkProgressBar.Value = e.ProgressPercentage;
-        }
-
-        private void BackgroundLoaderProgressCompleteInform(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (e.Cancelled)
-            {
-                Utils.BoxError(e.Result as string);
-                return;
-            }
-
-            BackgroundWorkerResultWrapper result = e.Result as BackgroundWorkerResultWrapper;
-
-            _lvRecordList.Columns.Clear();
-            _lvRecordList.Items.Clear();
-
-            _lvRecordList.Columns.AddRange(result.Headers.ToArray());
-            _lvRecordList.Items.AddRange(result.Rows.ToArray());
-
-            foreach (ColumnHeader col in _lvRecordList.Columns)
-                col.Width = BaseDbcFormat.IsFieldString(result.GetRecordType(), col.Name) ? 120 : -2;
-        }
-        #endregion
-
-        private void ExportToSQL(object sender, EventArgs e)
-        {
-            SQLExportWorker.RunWorkerAsync();
-        }
-
-        private dynamic GetCurrentStorage()
-        {
-            return CurrentStorageType.GetProperty("Records").GetValue(CurrentStorage);
+            sqlExportProgressBar.Value = e.ProgressPercentage;
         }
 
         private void SetSelectedFile(string fileType, string fileExt)
@@ -258,15 +181,18 @@ namespace MyDBCViewer
             CurrentFileStatusStrip.Text = String.Format("{0}.{1}", fileType, fileExt);
         }
 
-        #region SQL Worker
+        #region SQL Background Worker
+
+        // ReSharper disable InconsistentNaming
         private void OutputSQL(object sender, DoWorkEventArgs e)
+
+        // ReSharper restore InconsistentNaming
         {
-            var output = new StreamWriter("output.sql");
-            output.AutoFlush = true;
+            var output = new StreamWriter("output.sql") { AutoFlush = true };
 
             SQLExportWorker.ReportProgress(0);
 
-            List<string> parameterList = new List<string>();
+            var parameterList = new List<string>();
             dynamic recordWrapper = GetCurrentStorage();
             ClientFieldInfo[] fileInfo = BaseDbcFormat.GetStructure(CurrentDbFileType);
 
@@ -279,16 +205,17 @@ namespace MyDBCViewer
                     parameterList.Add(String.Format("`{0}`", info.Name));
             }
 
-            output.WriteLine("INSERT INTO `{0}Records` ({1}) VALUES", SelectedFile, String.Join(", ", parameterList.ToArray()));
+            output.WriteLine("INSERT INTO `{0}Records` ({1}) VALUES", SelectedFile,
+                             String.Join(", ", parameterList.ToArray()));
             parameterList.Clear(); // Reuse it
             SQLExportWorker.ReportProgress(50);
 
             int recordIndex = 0;
             int lastRecord = recordWrapper.Count - 1;
-            foreach (var record in recordWrapper)
+            foreach (dynamic record in recordWrapper)
             {
-                List<string> fieldList = new List<string>();
-                foreach (var info in fileInfo)
+                var fieldList = new List<string>();
+                foreach (ClientFieldInfo info in fileInfo)
                 {
                     bool isStringField = (info.FieldType == typeof(string));
                     FieldInfo fi = record.GetType().GetField(info.Name);
@@ -312,7 +239,8 @@ namespace MyDBCViewer
                             fieldList.Add(value);
                     }
                 }
-                output.WriteLine("({0})" + (recordIndex == lastRecord ? ";" : ","), String.Join(",", fieldList.ToArray()));
+                output.WriteLine("({0})" + (recordIndex == lastRecord ? ";" : ","),
+                                 String.Join(",", fieldList.ToArray()));
                 output.Flush();
                 ++recordIndex;
             }
@@ -320,39 +248,139 @@ namespace MyDBCViewer
             output.Close();
             SQLExportWorker.ReportProgress(100);
         }
-        #endregion
 
-        private void OnSQlWriteProgressUpdate(object sender, ProgressChangedEventArgs e)
+        #endregion SQL Background Worker
+
+        #region File loaders (DBC, DB2)
+
+        protected void InternalFileSelectionHandler(string fileName, string fileType, Type target)
+        {
+            BackgroundLoader.CancelAsync();
+            BackgroundLoader.RunWorkerAsync(new BackgroundWorkerSettings(fileName, fileType, target));
+        }
+
+        private void OnDb2FileSelection(object sender, EventArgs e)
+        {
+            InternalFileSelectionHandler(((ToolStripMenuItem)sender).Text, "DB2", typeof(DB2Storage<>));
+        }
+
+        private void OnDbcFileSelection(object sender, EventArgs e)
+        {
+            InternalFileSelectionHandler(((ToolStripMenuItem)sender).Text, "DBC", typeof(DBCStorage<>));
+        }
+
+        #endregion File loaders (DBC, DB2)
+
+        #region Background DBC/DB2 loader
+
+        private void BackgroundLoaderProgressCompleteInform(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled)
+            {
+                Utils.BoxError(e.Result as string);
+                return;
+            }
+
+            var result = (BackgroundWorkerResultWrapper)e.Result;
+
+            _lvRecordList.Columns.Clear();
+            _lvRecordList.Items.Clear();
+
+            _lvRecordList.Columns.AddRange(result.Headers.ToArray());
+            _lvRecordList.Items.AddRange(result.Rows.ToArray());
+
+            foreach (ColumnHeader col in _lvRecordList.Columns)
+                col.Width = BaseDbcFormat.IsFieldString(result.GetRecordType(), col.Name) ? 120 : -2;
+        }
+
+        private void BackgroundLoaderProgressInform(object sender, ProgressChangedEventArgs e)
         {
             if (e.ProgressPercentage == 0)
-                sqlExportProgressBar.Visible = true;
+                BackgroundWorkProgressBar.Visible = true;
             else if (e.ProgressPercentage == 100)
-                sqlExportProgressBar.Visible = false;
+                BackgroundWorkProgressBar.Visible = false;
 
-            sqlExportProgressBar.Value = e.ProgressPercentage;
+            BackgroundWorkProgressBar.Value = e.ProgressPercentage;
         }
-    }
 
-    public class BackgroundWorkerSettings
-    {
-        public string FileName;
-        public string FileType;
-        public Type TargetType;
-
-        public BackgroundWorkerSettings(string Name, string Type, Type targetType)
+        private void BackgroundLoadFile(object sender, DoWorkEventArgs e)
         {
-            FileName = Name;
-            FileType = Type;
-            TargetType = targetType;
+            var settings = (BackgroundWorkerSettings)e.Argument;
+
+            try
+            {
+                BackgroundLoader.ReportProgress(0);
+
+                //! TODO: Nuke out as MUCH reflection as possible
+                CurrentDbFileType = Assembly.GetExecutingAssembly()
+                                            .GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild,
+                                                           settings.FileName.AsReflectionTypeIdentifier(),
+                                                           settings.FileType);
+                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(CurrentDbFileType);
+                if (columnsArray.Length == 0)
+                    throw new Exception(String.Format("No definition found for {0}.{2} ({1})", settings.FileName,
+                                                      SelectedBuild, settings.FileType.ToLower()));
+
+                BackgroundLoader.ReportProgress(10);
+
+                // Load the file
+                CurrentStorageType = settings.TargetType.MakeGenericType(new[] { CurrentDbFileType });
+                CurrentStorage = Activator.CreateInstance(CurrentStorageType);
+                using (
+                    var strm =
+                        new FileStream(String.Format("{0}\\{1}.{0}", settings.FileType.ToLower(), settings.FileName),
+                                       FileMode.Open))
+                    CurrentStorageType
+                        .GetMethod("Load", new[] { typeof(FileStream) })
+                        .Invoke(CurrentStorage, new object[] { strm });
+
+                BackgroundLoader.ReportProgress(40);
+                var result = new BackgroundWorkerResultWrapper(settings, CurrentDbFileType);
+
+                #region Columns loading, set to hidden
+
+                foreach (ClientFieldInfo col in columnsArray)
+                    if (col.ArraySize != 0)
+                        for (int i = 0; i < col.ArraySize; ++i)
+                            result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left, i);
+                    else
+                        result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left);
+
+                #endregion Columns loading, set to hidden
+
+                BackgroundLoader.ReportProgress(80);
+
+                //! THIS IS THE MOST TIME-CONSUMING PROCESS, ALONG WITH RENDERING
+                // Get the records
+                using (dynamic dbcRecords = CurrentStorageType.GetProperty("Records").GetValue(CurrentStorage))
+                    foreach (dynamic record in dbcRecords)
+                        result.AddRow(BaseDbcFormat.CreateTableRow(record, CurrentDbFileType, record.GetType()));
+
+                BackgroundLoader.ReportProgress(100);
+
+                SetSelectedFile(settings.FileName, settings.FileType.ToLower());
+                e.Result = result;
+            }
+            catch (Exception ex)
+            {
+                e.Result = ex.Message;
+                e.Cancel = true;
+            }
         }
+
+        #endregion Background DBC/DB2 loader
     }
 
     public class BackgroundWorkerResultWrapper
     {
-        public List<ListViewItem> Rows;
+        // ReSharper disable InconsistentNaming
+        private readonly BackgroundWorkerSettings InitialSettings;
+
+        // ReSharper restore InconsistentNaming
         public List<ColumnHeader> Headers;
-        private BackgroundWorkerSettings InitialSettings;
+
         public Type RecordType;
+        public List<ListViewItem> Rows;
 
         public BackgroundWorkerResultWrapper(BackgroundWorkerSettings settings, Type recordType)
         {
@@ -362,21 +390,46 @@ namespace MyDBCViewer
             RecordType = recordType;
         }
 
-        public string GetFileName() { return InitialSettings.FileName; }
-        public string GetFileType(bool lower = true) { return lower ? InitialSettings.FileType.ToLower() : InitialSettings.FileType; }
-        public Type GetRecordType() { return RecordType; }
-
-        public void AddRow(ListViewItem row) { Rows.Add(row); }
-        public void AddColumnHeader(string Text, int width, HorizontalAlignment alignment, int arrayOffset = -1)
+        public void AddColumnHeader(string text, int width, HorizontalAlignment alignment, int arrayOffset = -1)
         {
-            ColumnHeader header = new ColumnHeader();
-            header.Name = Text;
-            header.Text = Text;
-            header.Width = width;
-            header.TextAlign = alignment;
+            var header = new ColumnHeader { Name = text, Text = text, Width = width, TextAlign = alignment };
             if (arrayOffset != -1)
-                header.Text = String.Format("{0}[{1}]", Text, arrayOffset);
+                header.Text = String.Format("{0}[{1}]", text, arrayOffset);
             Headers.Add(header);
+        }
+
+        public void AddRow(ListViewItem row)
+        {
+            Rows.Add(row);
+        }
+
+        public string GetFileName()
+        {
+            return InitialSettings.FileName;
+        }
+
+        public string GetFileType(bool lower = true)
+        {
+            return lower ? InitialSettings.FileType.ToLower() : InitialSettings.FileType;
+        }
+
+        public Type GetRecordType()
+        {
+            return RecordType;
+        }
+    }
+
+    public class BackgroundWorkerSettings
+    {
+        public string FileName;
+        public string FileType;
+        public Type TargetType;
+
+        public BackgroundWorkerSettings(string name, string type, Type targetType)
+        {
+            FileName = name;
+            FileType = type;
+            TargetType = targetType;
         }
     }
 }
