@@ -139,10 +139,10 @@
             this._lvRecordList.GridLines = true;
             this._lvRecordList.HideSelection = false;
             this._lvRecordList.Location = new System.Drawing.Point(3, 28);
-            this._lvRecordList.MinimumSize = new System.Drawing.Size(914, 402);
+            this._lvRecordList.MinimumSize = new System.Drawing.Size(914, 380);
             this._lvRecordList.MultiSelect = false;
             this._lvRecordList.Name = "_lvRecordList";
-            this._lvRecordList.Size = new System.Drawing.Size(914, 402);
+            this._lvRecordList.Size = new System.Drawing.Size(914, 380);
             this._lvRecordList.TabIndex = 8;
             this._lvRecordList.UseCompatibleStateImageBehavior = false;
             this._lvRecordList.View = System.Windows.Forms.View.Details;
