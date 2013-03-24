@@ -17,9 +17,10 @@ namespace MyDBCViewer
     public partial class MainForm : Form
     {
         public static string SelectedBuild;             //< String identifying the build (Cataclysm or WoTLK)
-        public static object CurrentDBClientFile;       //< Current DBC/DB2 being read
-        public static Type CurrentDBClientFileType;     //< Underlying type of the object above
-        public static string SelectedFile;              //< File currently displayed           
+        public static object CurrentStorage;            //< Current DBC/DB2 being read
+        public static Type CurrentStorageType;          //< Underlying type of the object above
+        public static Type CurrentDbFileType;           //< Inner structure in the current file (DBCStorage<T>: T)
+        public static string SelectedFile;              //< File currently displayed
 
         public MainForm()
         {
@@ -149,7 +150,7 @@ namespace MyDBCViewer
         }
         #endregion
 
-        #region Background workers
+        #region Background DBC/DB2 loader
         private void BackgroundLoadFile(object sender, DoWorkEventArgs e)
         {
             BackgroundWorkerSettings settings = e.Argument as BackgroundWorkerSettings;
@@ -159,24 +160,23 @@ namespace MyDBCViewer
                 BackgroundLoader.ReportProgress(0);
 
                 /// TODO: Nuke out as MUCH reflection as possible
-                Type[] classType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, settings.FileName.AsReflectionTypeIdentifier(), settings.FileType) };
-                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType[0]);
+                CurrentDbFileType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, settings.FileName.AsReflectionTypeIdentifier(), settings.FileType);
+                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(CurrentDbFileType);
                 if (columnsArray.Length == 0)
                     throw new Exception(String.Format("No definition found for {0}.{2} ({1})", settings.FileName, SelectedBuild, settings.FileType.ToLower()));
 
                 BackgroundLoader.ReportProgress(10);
 
                 // Load the file
-                CurrentDBClientFileType = settings.TargetType.MakeGenericType(classType);
-                CurrentDBClientFile = Activator.CreateInstance(CurrentDBClientFileType);
+                CurrentStorageType = settings.TargetType.MakeGenericType(new Type[] { CurrentDbFileType });
+                CurrentStorage = Activator.CreateInstance(CurrentStorageType);
                 using (var strm = new FileStream(String.Format("{0}\\{1}.{0}", settings.FileType.ToLower(), settings.FileName), FileMode.Open))
-                    CurrentDBClientFileType
+                    CurrentStorageType
                         .GetMethod("Load", new Type[] { typeof(FileStream) })
-                        .Invoke(CurrentDBClientFile, new object[] { strm });
+                        .Invoke(CurrentStorage, new object[] { strm });
 
                 BackgroundLoader.ReportProgress(40);
-
-                BackgroundWorkerResultWrapper result = new BackgroundWorkerResultWrapper(settings, classType[0]);
+                BackgroundWorkerResultWrapper result = new BackgroundWorkerResultWrapper(settings, CurrentDbFileType);
 
                 #region Columns loading, set to hidden
                 foreach (var col in columnsArray)
@@ -191,10 +191,9 @@ namespace MyDBCViewer
 
                 /// THIS IS THE MOST TIME-CONSUMING PROCESS, ALONG WITH RENDERING
                 // Get the records
-                CurrentDBClientFileType = typeof(DBCStorage<>).MakeGenericType(classType);
-                using (dynamic dbcRecords = CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile))
+                using (dynamic dbcRecords = CurrentStorageType.GetProperty("Records").GetValue(CurrentStorage))
                     foreach (var record in dbcRecords)
-                        result.AddRow(BaseDbcFormat.CreateTableRow(record, classType[0], record.GetType()));
+                        result.AddRow(BaseDbcFormat.CreateTableRow(record, CurrentDbFileType, record.GetType()));
 
                 BackgroundLoader.ReportProgress(100);
 
@@ -244,9 +243,9 @@ namespace MyDBCViewer
             SQLExportWorker.RunWorkerAsync();
         }
 
-        private dynamic GetCurrentFileRecords()
+        private dynamic GetCurrentStorage()
         {
-            return CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile);
+            return CurrentStorageType.GetProperty("Records").GetValue(CurrentStorage);
         }
 
         private void SetSelectedFile(string fileType, string fileExt)
@@ -264,45 +263,57 @@ namespace MyDBCViewer
             SQLExportWorker.ReportProgress(0);
 
             List<string> parameterList = new List<string>();
-            dynamic recordWrapper = GetCurrentFileRecords();
-            foreach (var record in recordWrapper)
+            dynamic recordWrapper = GetCurrentStorage();
+            ClientFieldInfo[] fileInfo = BaseDbcFormat.GetStructure(CurrentDbFileType);
+
+            foreach (ClientFieldInfo info in fileInfo)
             {
-                ClientFieldInfo[] fieldInfo = BaseDbcFormat.GetStructure(record.GetType());
-                foreach (ClientFieldInfo info in fieldInfo)
-                {
-                    if (info.ArraySize != 0)
-                        for (int i = 0; i < info.ArraySize; ++i)
-                            parameterList.Add(String.Format("`{0}_{1}`", info.Name, i));
-                    else
-                        parameterList.Add(String.Format("`{0}`", info.Name));
-                }
-                break;
+                if (info.ArraySize != 0)
+                    for (int i = 0; i < info.ArraySize; ++i)
+                        parameterList.Add(String.Format("`{0}_{1}`", info.Name, i));
+                else
+                    parameterList.Add(String.Format("`{0}`", info.Name));
             }
 
-            SQLExportWorker.ReportProgress(10);
+            output.WriteLine("INSERT INTO `{0}Records` ({1}) VALUES", SelectedFile, String.Join(", ", parameterList.ToArray()));
+            parameterList.Clear(); // Reuse it
+            SQLExportWorker.ReportProgress(50);
 
-            output.WriteLine("INSERT INTO `{0}_dbc` ({1}) VALUES", SelectedFile, String.Join(", ", parameterList.ToArray()));
-            List<string> records = new List<string>();
+            int recordIndex = 0;
+            int lastRecord = recordWrapper.Count - 1;
             foreach (var record in recordWrapper)
             {
-                ClientFieldInfo[] fieldInfo = BaseDbcFormat.GetStructure(record.GetType());
                 List<string> fieldList = new List<string>();
-                foreach (var info in fieldInfo)
+                foreach (var info in fileInfo)
                 {
+                    bool isStringField = (info.FieldType == typeof(string));
+                    FieldInfo fi = record.GetType().GetField(info.Name);
                     if (info.ArraySize != 0)
+                    {
                         for (int i = 0; i < info.ArraySize; ++i)
-                            fieldList.Add(record.GetType().GetField(info.Name).GetValue(record)[i].ToString());
+                        {
+                            string value = fi.GetValue(record)[i].ToString();
+                            if (isStringField)
+                                fieldList.Add("\"" + value.Escape() + "\"");
+                            else
+                                fieldList.Add(value);
+                        }
+                    }
                     else
-                        fieldList.Add(record.GetType().GetField(info.Name).GetValue(record).ToString());
+                    {
+                        string value = fi.GetValue(record).ToString();
+                        if (isStringField)
+                            fieldList.Add("\"" + value.Escape() + "\"");
+                        else
+                            fieldList.Add(value);
+                    }
                 }
-                records.Add(String.Format("({0})", String.Join(",", fieldList.ToArray())));
+                output.WriteLine("({0})" + (recordIndex == lastRecord ? ";" : ","), String.Join(",", fieldList.ToArray()));
+                output.Flush();
+                ++recordIndex;
             }
 
-            SQLExportWorker.ReportProgress(60);
-            
-            output.Write(String.Join("," + Environment.NewLine, records.ToArray()) + ";");
             output.Close();
-            
             SQLExportWorker.ReportProgress(100);
         }
         #endregion

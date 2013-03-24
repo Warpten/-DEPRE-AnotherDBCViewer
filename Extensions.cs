@@ -58,5 +58,10 @@ namespace MyDBCViewer.Extensions
         {
             return store.Records.ToList()[0];
         }
+
+        public static string Escape(this string str)
+        {
+            return str.Replace(@"""", @"\""");
+        }
     }
 }
