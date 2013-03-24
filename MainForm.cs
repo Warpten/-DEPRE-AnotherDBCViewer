@@ -142,40 +142,67 @@ namespace MyDBCViewer
         #region File loaders (DBC, DB2)
         private void OnDb2FileSelection(object sender, EventArgs e)
         {
-            InternalFileSelectionHandler((sender as ToolStripMenuItem).Text, "DB2");
+            InternalFileSelectionHandler((sender as ToolStripMenuItem).Text, "DB2", typeof(DB2Storage<>));
         }
 
         private void OnDbcFileSelection(object sender, EventArgs e)
         {
-            InternalFileSelectionHandler((sender as ToolStripMenuItem).Text, "DBC");
+            InternalFileSelectionHandler((sender as ToolStripMenuItem).Text, "DBC", typeof(DBCStorage<>));
         }
 
-        protected void InternalFileSelectionHandler(string fileName, string fileType)
+        protected void InternalFileSelectionHandler(string fileName, string fileType, Type target)
         {
             try
             {
                 /// TODO: Nuke out as MUCH reflection as possible
 
-                Type classType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName.Replace("-", ""), fileType);
-                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType);
+                Type[] classType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName, fileType) };
+                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType[0]);
                 if (columnsArray.Length == 0)
                     throw new Exception("Missing definition!");
 
-                Type target = typeof(DBCStorage<>);
-                if (fileType == "DB2")
-                    target = typeof(DB2Storage<>);
-
                 // Load the file
-                Type[] typeArgs = { classType };
-                CurrentDBClientFileType = target.MakeGenericType(typeArgs);
+                CurrentDBClientFileType = target.MakeGenericType(classType);
                 CurrentDBClientFile = Activator.CreateInstance(CurrentDBClientFileType);
                 using (var strm = new FileStream(String.Format("{0}\\{1}.{0}", fileType.ToLower(), fileName), FileMode.Open))
-                    target.MakeGenericType(typeArgs)
+                    CurrentDBClientFileType
                         .GetMethod("Load", new Type[] { typeof(FileStream) })
                         .Invoke(CurrentDBClientFile, new object[] { strm });
 
                 // Now that this is populated, build our columns
-                LoadTableStructure(columnsArray, fileName, fileType);
+
+                _lvRecordList.Columns.Clear();
+                _lvRecordList.Items.Clear();
+
+                #region Header
+                // Load the header
+                foreach (var col in columnsArray)
+                    if (col.ArraySize != 0)
+                        for (int i = 0; i < col.ArraySize; ++i)
+                            _lvRecordList.Columns.Add(col.Name + "[ " + i + " ]", 0, HorizontalAlignment.Left);
+                    else
+                        _lvRecordList.Columns.Add(col.Name, 0, HorizontalAlignment.Left);
+                #endregion
+
+                // Get the records
+                CurrentDBClientFileType = typeof(DBCStorage<>).MakeGenericType(classType);
+                using (dynamic dbcRecords = CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile))
+                    foreach (var record in dbcRecords)
+                        _lvRecordList.Items.Add(BaseDbcFormat.CreateTableRow(record, classType[0], record.GetType()));
+
+                foreach (ColumnHeader col in _lvRecordList.Columns)
+                {
+                    bool autoWidth = false;
+                    foreach (ClientFieldInfo cfi in columnsArray)
+                    {
+                        if (cfi.FieldType != typeof(string))
+                        {
+                            autoWidth = true;
+                            break;
+                        }
+                    }
+                    col.Width = autoWidth ? -2 : 120;
+                }
 
                 SetSelectedFile(fileName, fileType.ToLower());
             }
