@@ -12,11 +12,15 @@ namespace MyDBCViewer.Extensions
     {
         public static string AsReflectionTypeIdentifier(this string str)
         {
-            List<char> ret = new List<char>(str.ToCharArray());
+            var ret = new List<char>(str.ToCharArray());
             for (int i = 0, s = ret.Count - 1; i < s; ++i)
                 if (ret[i] == '-')
-                    ret[i + 1] = (char)((int)ret[i + 1] - 32);
+                    ret[i + 1] = (char)(ret[i + 1] - 32);
+
+            // ReSharper disable CSharpWarnings::CS0642
             while (ret.Remove('-')) ;
+
+            // ReSharper restore CSharpWarnings::CS0642
             return String.Join(String.Empty, ret.ToArray());
         }
 
@@ -39,7 +43,7 @@ namespace MyDBCViewer.Extensions
 
         public static void BoxError(string message, params object[] args)
         {
-            MessageBox.Show(String.Format(message, args), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(String.Format(message, args), @"Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         public static ToolStripItem LastItem(this ToolStripItemCollection list)

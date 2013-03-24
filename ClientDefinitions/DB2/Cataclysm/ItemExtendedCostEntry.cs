@@ -4,7 +4,7 @@ namespace FileStructures.DB2.Cataclysm
 {
     public sealed class ItemExtendedCostEntry : BaseDbcFormat
     {
-        public uint ID;
+        public uint Id;
         public uint RequiredHonorPoints;
         public uint RequiredArenaPoints;
         public uint RequiredArenaSlot;

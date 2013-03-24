@@ -4,7 +4,7 @@ namespace FileStructures.DB2.Cataclysm
 {
     public sealed class ItemSparseEntry
     {
-        public uint ID;
+        public uint Id;
         public uint Quality;
         public uint Flags;
         public uint Flags2;

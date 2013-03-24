@@ -2,7 +2,7 @@
 {
     public sealed class ItemEntry : BaseDbcFormat
     {
-        public uint ID;
+        public uint Id;
         public uint Class;
         public uint SubClass;
         public int SoundOverrideSubclass;
