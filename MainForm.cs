@@ -60,7 +60,7 @@ namespace MyDBCViewer
 
                         try
                         {
-                            Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName.Replace("-", ""));
+                            Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName.AsReflectionTypeIdentifier());
                             if (fileInfo == null)
                                 throw new Exception();
                             items[i].Image = Properties.Resources.CheckBox;
@@ -94,7 +94,7 @@ namespace MyDBCViewer
                 {
                     item.Click += new EventHandler(OnDb2FileSelection);
 
-                    Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, item.Text.Replace("-", ""));
+                    Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, item.Text.AsReflectionTypeIdentifier());
                     if (fileInfo != null)
                         item.Image = Properties.Resources.CheckBox;
                 }
@@ -119,7 +119,7 @@ namespace MyDBCViewer
             {
                 int validatedCount = 0;
                 foreach (ToolStripMenuItem dbc in alphabetical.DropDownItems)
-                    if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbc.Text.Replace("-", "")) == null)
+                    if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbc.Text.AsReflectionTypeIdentifier()) == null)
                         dbc.Image = null;
                     else
                     {
@@ -133,7 +133,7 @@ namespace MyDBCViewer
             }
 
             foreach (ToolStripMenuItem dbc in loadDB2ToolStripMenuItem.DropDownItems)
-                if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, dbc.Text) == null)
+                if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, dbc.Text.AsReflectionTypeIdentifier()) == null)
                     dbc.Image = null;
                 else
                     dbc.Image = Properties.Resources.CheckBox;
@@ -156,7 +156,7 @@ namespace MyDBCViewer
             {
                 /// TODO: Nuke out as MUCH reflection as possible
 
-                Type[] classType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName, fileType) };
+                Type[] classType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName.AsReflectionTypeIdentifier(), fileType) };
                 ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType[0]);
                 if (columnsArray.Length == 0)
                     throw new Exception("Missing definition!");
@@ -212,52 +212,6 @@ namespace MyDBCViewer
             }
         }
         #endregion
-
-        private void LoadTableStructure(ClientFieldInfo[] columnsArray, string fileName, string fileType)
-        {
-            _lvRecordList.Columns.Clear();
-            _lvRecordList.Items.Clear();
-
-            // Load the header
-            foreach (var col in columnsArray)
-            {
-                int colWidth = 0; // Placeholder to hide them until everything is loaded
-
-                if (col.ArraySize != 0)
-                    for (int i = 0; i < col.ArraySize; ++i)
-                        _lvRecordList.Columns.Add(col.Name + "[ " + i + " ]", colWidth, HorizontalAlignment.Left);
-                else
-                    _lvRecordList.Columns.Add(col.Name, colWidth, HorizontalAlignment.Left); // Autowidth based off items
-            }
-
-            /// TODO: Nuke out as MUCH reflection as possible
-
-            // Get the records
-            Type[] storageType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{0}.{1}.{2}Entry", fileType, SelectedBuild, fileName.Replace("-", "")) };
-            CurrentDBClientFileType = typeof(DBCStorage<>).MakeGenericType(storageType);
-            dynamic dbcRecords = CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile);
-            foreach (var record in dbcRecords)
-                _lvRecordList.Items.Add(BaseDbcFormat.CreateTableRow(record, storageType[0], record.GetType()));
-
-            foreach (var record in dbcRecords) // Can't find any other way to iterate over Records
-            {
-                ClientFieldInfo[] cfInfo = BaseDbcFormat.GetStructure(record.GetType());
-                foreach (ColumnHeader col in _lvRecordList.Columns)
-                {
-                    bool autoWidth = false;
-                    foreach (ClientFieldInfo cfi in cfInfo)
-                    {
-                        if (cfi.FieldType != typeof(string))
-                        {
-                            autoWidth = true;
-                            break;
-                        }
-                    }
-                    col.Width = autoWidth ? -2 : 120;
-                }
-                break;
-            }
-        }
 
         #region Background worker - NYI
         private void BackgroundLoadFile(object sender, DoWorkEventArgs e)

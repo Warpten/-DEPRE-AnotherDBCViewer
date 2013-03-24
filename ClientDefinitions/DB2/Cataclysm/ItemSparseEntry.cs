@@ -2,7 +2,7 @@
 
 namespace FileStructures.DB2.Cataclysm
 {
-    public sealed class ItemsparseEntry : BaseDbcFormat
+    public sealed class ItemSparseEntry
     {
         public uint ID;
         public uint Quality;

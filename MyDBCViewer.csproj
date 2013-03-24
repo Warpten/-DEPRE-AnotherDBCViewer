@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientDefinitions\BaseDbcFormat.cs" />
-    <Compile Include="ClientDefinitions\DB2\Cataclysm\Item-sparseEntry.cs" />
+    <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemSparseEntry.cs" />
     <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemCurrencyCostEntry.cs" />
     <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemEntry.cs" />
     <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemExtendedCostEntry.cs" />
@@ -68,7 +68,7 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TalentTreePrimarySpellsEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TaxiPathEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TaxiPathNodeEntry.cs" />
-    <Compile Include="ClientDefinitions\DBC\Cataclysm\TotemCategoryEntry.cs" />	
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\TotemCategoryEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\WorldSafeLocsEntry.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="MainForm.cs">
