@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Reflection;
 using System.IO;
+using DBFilesClient.NET;
 
 namespace MyDBCViewer.Extensions
 {
@@ -13,6 +14,17 @@ namespace MyDBCViewer.Extensions
     {
         public static Type GetFormatType(this Assembly a, string typeString, params object[] args)
         {
+            for (int j = 0; j < args.Length; ++j)
+            {
+                if (args[j].GetType() != typeof(string))
+                    continue;
+
+                char[] cA = args[j].ToString().ToCharArray();
+                for (int i = 0; i < cA.Length - 1; ++i)
+                    if (cA[i] == '-')
+                        cA[i + 1] = cA[i + 1].ToString().ToUpper()[0];
+                args[j] = cA.ToString();
+            }
             return a.GetType(String.Format(typeString, args));
         }
 
@@ -29,6 +41,11 @@ namespace MyDBCViewer.Extensions
         public static void WriteFormatString(this StreamWriter stream, string fmt, params object[] args)
         {
             stream.Write(String.Format(fmt, args));
+        }
+
+        public static T GetFirstRecord<T>(this DBCStorage<T> store) where T : class, new()
+        {
+            return store.Records.ToList()[0];
         }
     }
 }

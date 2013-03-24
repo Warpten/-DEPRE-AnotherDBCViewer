@@ -154,6 +154,8 @@ namespace MyDBCViewer
         {
             try
             {
+                /// TODO: Nuke out as MUCH reflection as possible
+
                 Type classType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName.Replace("-", ""), fileType);
                 ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType);
                 if (columnsArray.Length == 0)
@@ -200,6 +202,8 @@ namespace MyDBCViewer
                 else
                     _lvRecordList.Columns.Add(col.Name, colWidth, HorizontalAlignment.Left); // Autowidth based off items
             }
+
+            /// TODO: Nuke out as MUCH reflection as possible
 
             // Get the records
             Type[] storageType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{0}.{1}.{2}Entry", fileType, SelectedBuild, fileName.Replace("-", "")) };
