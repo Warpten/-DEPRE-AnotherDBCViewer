@@ -60,7 +60,7 @@ namespace MyDBCViewer
 
                         try
                         {
-                            Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName);
+                            Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName.Replace("-", ""));
                             if (fileInfo == null)
                                 throw new Exception();
                             items[i].Image = Properties.Resources.CheckBox;
@@ -94,7 +94,7 @@ namespace MyDBCViewer
                 {
                     item.Click += new EventHandler(OnDb2FileSelection);
 
-                    Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, item.Text);
+                    Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, item.Text.Replace("-", ""));
                     if (fileInfo != null)
                         item.Image = Properties.Resources.CheckBox;
                 }
@@ -119,7 +119,7 @@ namespace MyDBCViewer
             {
                 int validatedCount = 0;
                 foreach (ToolStripMenuItem dbc in alphabetical.DropDownItems)
-                    if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbc.Text) == null)
+                    if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbc.Text.Replace("-", "")) == null)
                         dbc.Image = null;
                     else
                     {
@@ -154,7 +154,7 @@ namespace MyDBCViewer
         {
             try
             {
-                Type classType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName, fileType);
+                Type classType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName.Replace("-", ""), fileType);
                 ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType);
                 if (columnsArray.Length == 0)
                     throw new Exception("Missing definition!");
@@ -202,7 +202,7 @@ namespace MyDBCViewer
             }
 
             // Get the records
-            Type[] storageType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{0}.{1}.{2}Entry", fileType, SelectedBuild, fileName) };
+            Type[] storageType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{0}.{1}.{2}Entry", fileType, SelectedBuild, fileName.Replace("-", "")) };
             CurrentDBClientFileType = typeof(DBCStorage<>).MakeGenericType(storageType);
             dynamic dbcRecords = CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile);
             foreach (var record in dbcRecords)
