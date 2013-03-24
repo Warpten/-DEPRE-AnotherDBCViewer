@@ -49,8 +49,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientDefinitions\BaseDbcFormat.cs" />
-    <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemCurrencyCostEntry.cs" />
     <Compile Include="ClientDefinitions\DB2\Cataclysm\Item-sparseEntry.cs" />
+    <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemCurrencyCostEntry.cs" />
+    <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemEntry.cs" />
+    <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemExtendedCostEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaGroupEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaTableEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\gtSpellScalingEntry.cs" />
