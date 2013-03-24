@@ -55,11 +55,21 @@
     <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemExtendedCostEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaGroupEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaTableEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaTriggerEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ArmorLocationEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\gtSpellScalingEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\OverrideSpellDataEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ScreenEffectEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\SkillLineAbilityEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\SpellDescriptionVariablesEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\SpellRadiusEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\SummonPropertiesEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\TalentTabEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\TalentTreePrimarySpellsEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\TaxiPathEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\TaxiPathNodeEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\TotemCategoryEntry.cs" />	
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\WorldSafeLocsEntry.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
