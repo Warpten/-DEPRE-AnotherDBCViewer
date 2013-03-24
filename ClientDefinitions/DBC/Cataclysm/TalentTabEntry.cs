@@ -13,6 +13,7 @@ namespace FileStructures.DBC.Cataclysm
         public string InternalName;
         public string Description;
         public uint RolesMask;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 2)]
         public uint[] MasterySpells;
     }

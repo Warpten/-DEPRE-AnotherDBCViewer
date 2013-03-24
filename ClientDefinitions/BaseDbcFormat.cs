@@ -1,10 +1,9 @@
-﻿using DBFilesClient.NET;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Collections;
+using DBFilesClient.NET;
 
 namespace FileStructures
 {

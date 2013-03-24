@@ -5,8 +5,10 @@ namespace FileStructures.DBC.Cataclysm
     public sealed class BattlemasterListEntry
     {
         public uint Id;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 8)]
         public int[] Mapid;
+
         public uint Type;
         public uint CanJoinAsGroup;
         public string Name;

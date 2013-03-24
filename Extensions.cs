@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Reflection;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Windows.Forms;
 using DBFilesClient.NET;
 
 namespace MyDBCViewer.Extensions
@@ -18,7 +16,7 @@ namespace MyDBCViewer.Extensions
             for (int i = 0, s = ret.Count - 1; i < s; ++i)
                 if (ret[i] == '-')
                     ret[i + 1] = (char)((int)ret[i + 1] - 32);
-            while (ret.Remove('-'));
+            while (ret.Remove('-')) ;
             return String.Join(String.Empty, ret.ToArray());
         }
 

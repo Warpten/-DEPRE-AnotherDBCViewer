@@ -1,6 +1,4 @@
-﻿using DBFilesClient.NET;
-
-namespace FileStructures.DBC.Cataclysm
+﻿namespace FileStructures.DBC.Cataclysm
 {
     public sealed class ExhaustionEntry
     {

@@ -1,6 +1,4 @@
-﻿using DBFilesClient.NET;
-
-namespace FileStructures.DB2.Cataclysm
+﻿namespace FileStructures.DB2.Cataclysm
 {
     public sealed class ItemEntry : BaseDbcFormat
     {

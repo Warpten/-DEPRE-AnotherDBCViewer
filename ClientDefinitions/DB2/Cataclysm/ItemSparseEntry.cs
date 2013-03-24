@@ -28,30 +28,42 @@ namespace FileStructures.DB2.Cataclysm
         public uint MaxCount;
         public uint Stackable;
         public uint ContainerSlots;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 10)]
         public int[] ItemStatType;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 10)]
         public uint[] ItemStatValue;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 10)]
         public int[] ItemStatUnk1;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 10)]
         public int[] ItemStatUnk2;
+
         public uint ScalingStatDistribution;
         public uint DamageType;
         public uint Delay;
         public float RangedModRange;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 5)]
         public int[] SpellId;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 5)]
         public int[] SpellTrigger;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 5)]
         public int[] SpellCharges;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 5)]
         public int[] SpellCooldown;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 5)]
         public int[] SpellCategory;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 5)]
         public int[] SpellCategoryCooldown;
+
         public uint Bonding;
         public string Name;
         public string Name2;
@@ -72,10 +84,13 @@ namespace FileStructures.DB2.Cataclysm
         public uint Map;
         public uint BagFamily;
         public uint TotemCategory;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 3)]
         public uint[] Color;
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 3)]
         public uint[] Content;
+
         public int SocketBonus;
         public uint GemProperties;
         public float ArmorDamageModifier;

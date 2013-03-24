@@ -16,6 +16,7 @@ namespace FileStructures.DBC.Cataclysm
         public uint LearnOnGetSkill;                                // 9        m_acquireMethod
         public uint MaxValue;                                       // 10       m_trivialSkillLineRankHigh
         public uint MinValue;                                       // 11       m_trivialSkillLineRankLow
+
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 2)]
         public uint[] CharacterPoints;                              // 12-13    m_characterPoints[2]
     }
