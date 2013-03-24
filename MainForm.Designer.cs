@@ -45,6 +45,7 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.CurrentFileStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.BuildIdStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
+            this.BackgroundWorkProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -149,6 +150,8 @@
             // 
             // BackgroundLoader
             // 
+            this.BackgroundLoader.WorkerReportsProgress = true;
+            this.BackgroundLoader.WorkerSupportsCancellation = true;
             this.BackgroundLoader.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundLoadFile);
             this.BackgroundLoader.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundLoaderProgressInform);
             this.BackgroundLoader.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundLoaderProgressCompleteInform);
@@ -158,7 +161,8 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.CurrentFileStatusStrip,
-            this.BuildIdStatusStrip});
+            this.BuildIdStatusStrip,
+            this.BackgroundWorkProgressBar});
             this.statusStrip1.Location = new System.Drawing.Point(0, 411);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(920, 22);
@@ -181,6 +185,13 @@
             // 
             this.BuildIdStatusStrip.Name = "BuildIdStatusStrip";
             this.BuildIdStatusStrip.Size = new System.Drawing.Size(0, 17);
+            // 
+            // BackgroundWorkProgressBar
+            // 
+            this.BackgroundWorkProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.BackgroundWorkProgressBar.Name = "BackgroundWorkProgressBar";
+            this.BackgroundWorkProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.BackgroundWorkProgressBar.Visible = false;
             // 
             // MainForm
             // 
@@ -222,6 +233,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel CurrentFileStatusStrip;
         private System.Windows.Forms.ToolStripStatusLabel BuildIdStatusStrip;
+        private System.Windows.Forms.ToolStripProgressBar BackgroundWorkProgressBar;
     }
 }
 

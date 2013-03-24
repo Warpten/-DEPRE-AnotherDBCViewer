@@ -48,22 +48,25 @@ namespace FileStructures
 
         public static ListViewItem CreateTableRow(dynamic rowInfo, Type structInfo, Type rowStruct)
         {
-            ClientFieldInfo[] structCustomInfo = GetStructure(structInfo);
+            var propsList = structInfo.GetFields(BindingFlags.Instance | BindingFlags.Public);
             List<string> rowData = new List<string>();
 
-            foreach (var columnInfo in structCustomInfo)
+            foreach (var propInfo in propsList)
             {
-                var cellValue = rowStruct.GetField(columnInfo.Name).GetValue(rowInfo);
+                var cellValue = rowStruct.GetField(propInfo.Name).GetValue(rowInfo);
                 if (cellValue.GetType().IsArray)
-                {
                     foreach (object item in (cellValue as IEnumerable))
                         rowData.Add(item.ToString());
-                }
                 else
                     rowData.Add(cellValue.ToString());
             }
 
             return new ListViewItem(rowData.ToArray());
+        }
+
+        public static bool IsFieldString(Type rowStruct, string fieldName)
+        {
+            return rowStruct.GetField(fieldName).FieldType == typeof(string);
         }
     }
 }

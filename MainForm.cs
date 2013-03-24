@@ -58,14 +58,8 @@ namespace MyDBCViewer
                         items[i] = new ToolStripMenuItem(dbcFileName);
                         items[i].Click += new EventHandler(this.OnDbcFileSelection);
 
-                        try
-                        {
-                            Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName.AsReflectionTypeIdentifier());
-                            if (fileInfo == null)
-                                throw new Exception();
+                        if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName.AsReflectionTypeIdentifier()) != null)
                             items[i].Image = Properties.Resources.CheckBox;
-                        }
-                        catch (Exception /*ex*/) { }
 
                         alphabeticalMenuItems[offset].DropDownItems.Add(items[i]);
                     }
@@ -93,9 +87,7 @@ namespace MyDBCViewer
                 foreach (ToolStripMenuItem item in loadDB2ToolStripMenuItem.DropDownItems)
                 {
                     item.Click += new EventHandler(OnDb2FileSelection);
-
-                    Type fileInfo = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, item.Text.AsReflectionTypeIdentifier());
-                    if (fileInfo != null)
+                    if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, item.Text.AsReflectionTypeIdentifier()) != null)
                         item.Image = Properties.Resources.CheckBox;
                 }
             }
@@ -113,7 +105,7 @@ namespace MyDBCViewer
 
             (sender as ToolStripMenuItem).Image = Properties.Resources.CheckBox;
             SelectedBuild = (sender as ToolStripMenuItem).Name.Substring(1).Replace("Build", "");
-            BuildIdStatusStrip.Text = "@" + SelectedBuild;
+            BuildIdStatusStrip.Text = "@ " + SelectedBuild;
 
             foreach (ToolStripMenuItem alphabetical in loadDBCToolStripMenuItem.DropDownItems)
             {
@@ -152,81 +144,98 @@ namespace MyDBCViewer
 
         protected void InternalFileSelectionHandler(string fileName, string fileType, Type target)
         {
+            BackgroundLoader.CancelAsync();
+            BackgroundLoader.RunWorkerAsync(new BackgroundWorkerSettings(fileName, fileType, target));
+        }
+        #endregion
+
+        #region Background workers
+        private void BackgroundLoadFile(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorkerSettings settings = e.Argument as BackgroundWorkerSettings;
+
             try
             {
-                /// TODO: Nuke out as MUCH reflection as possible
+                BackgroundLoader.ReportProgress(0);
 
-                Type[] classType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, fileName.AsReflectionTypeIdentifier(), fileType) };
+                /// TODO: Nuke out as MUCH reflection as possible
+                Type[] classType = { Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild, settings.FileName.AsReflectionTypeIdentifier(), settings.FileType) };
                 ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(classType[0]);
                 if (columnsArray.Length == 0)
-                    throw new Exception("Missing definition!");
+                    throw new Exception(String.Format("No definition found for {0}.{2} ({1})", settings.FileName, SelectedBuild, settings.FileType.ToLower()));
+
+                BackgroundLoader.ReportProgress(10);
 
                 // Load the file
-                CurrentDBClientFileType = target.MakeGenericType(classType);
+                CurrentDBClientFileType = settings.TargetType.MakeGenericType(classType);
                 CurrentDBClientFile = Activator.CreateInstance(CurrentDBClientFileType);
-                using (var strm = new FileStream(String.Format("{0}\\{1}.{0}", fileType.ToLower(), fileName), FileMode.Open))
+                using (var strm = new FileStream(String.Format("{0}\\{1}.{0}", settings.FileType.ToLower(), settings.FileName), FileMode.Open))
                     CurrentDBClientFileType
                         .GetMethod("Load", new Type[] { typeof(FileStream) })
                         .Invoke(CurrentDBClientFile, new object[] { strm });
 
-                // Now that this is populated, build our columns
+                BackgroundLoader.ReportProgress(40);
 
-                _lvRecordList.Columns.Clear();
-                _lvRecordList.Items.Clear();
+                BackgroundWorkerResultWrapper result = new BackgroundWorkerResultWrapper(settings, classType[0]);
 
-                #region Header
-                // Load the header
+                #region Columns loading, set to hidden
                 foreach (var col in columnsArray)
                     if (col.ArraySize != 0)
                         for (int i = 0; i < col.ArraySize; ++i)
-                            _lvRecordList.Columns.Add(col.Name + "[ " + i + " ]", 0, HorizontalAlignment.Left);
+                            result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left, i);
                     else
-                        _lvRecordList.Columns.Add(col.Name, 0, HorizontalAlignment.Left);
+                        result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left);
                 #endregion
 
+                BackgroundLoader.ReportProgress(80);
+
+                /// THIS IS THE MOST TIME-CONSUMING PROCESS, ALONG WITH RENDERING
                 // Get the records
                 CurrentDBClientFileType = typeof(DBCStorage<>).MakeGenericType(classType);
                 using (dynamic dbcRecords = CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile))
                     foreach (var record in dbcRecords)
-                        _lvRecordList.Items.Add(BaseDbcFormat.CreateTableRow(record, classType[0], record.GetType()));
+                        result.AddRow(BaseDbcFormat.CreateTableRow(record, classType[0], record.GetType()));
 
-                foreach (ColumnHeader col in _lvRecordList.Columns)
-                {
-                    bool autoWidth = false;
-                    foreach (ClientFieldInfo cfi in columnsArray)
-                    {
-                        if (cfi.FieldType != typeof(string))
-                        {
-                            autoWidth = true;
-                            break;
-                        }
-                    }
-                    col.Width = autoWidth ? -2 : 120;
-                }
+                BackgroundLoader.ReportProgress(100);
 
-                SetSelectedFile(fileName, fileType.ToLower());
+                SetSelectedFile(settings.FileName, settings.FileType.ToLower());
+                e.Result = result;
             }
-            catch (Exception /*ex*/)
+            catch (Exception ex)
             {
-                Utils.BoxError("No definition found for {0}.{2} ({1})", fileName, SelectedBuild, fileType.ToLower());
+                e.Result = ex.Message;
+                e.Cancel = true;
             }
-        }
-        #endregion
-
-        #region Background worker - NYI
-        private void BackgroundLoadFile(object sender, DoWorkEventArgs e)
-        {
-
         }
 
         private void BackgroundLoaderProgressInform(object sender, ProgressChangedEventArgs e)
         {
+            if (e.ProgressPercentage == 0)
+                BackgroundWorkProgressBar.Visible = true;
+            else if (e.ProgressPercentage == 100)
+                BackgroundWorkProgressBar.Visible = false;
 
+            BackgroundWorkProgressBar.Value = e.ProgressPercentage;
         }
 
         private void BackgroundLoaderProgressCompleteInform(object sender, RunWorkerCompletedEventArgs e)
         {
+            if (e.Cancelled)
+            {
+                Utils.BoxError(e.Result as string);
+                return;
+            }
 
+            BackgroundWorkerResultWrapper result = e.Result as BackgroundWorkerResultWrapper;
+
+            _lvRecordList.Columns.Clear();
+            _lvRecordList.Items.Clear();
+
+            _lvRecordList.Columns.AddRange(result.Headers.ToArray());
+            _lvRecordList.Items.AddRange(result.Rows.ToArray());
+
+            foreach (ColumnHeader col in _lvRecordList.Columns)
+                col.Width = BaseDbcFormat.IsFieldString(result.GetRecordType(), col.Name) ? 120 : -2;
         }
         #endregion
 
@@ -282,5 +291,52 @@ namespace MyDBCViewer
             CurrentFileStatusStrip.Text = String.Format("{0}.{1}", fileType, fileExt);
         }
 
+    }
+
+    public class BackgroundWorkerSettings
+    {
+        public string FileName;
+        public string FileType;
+        public Type TargetType;
+
+        public BackgroundWorkerSettings(string Name, string Type, Type targetType)
+        {
+            FileName = Name;
+            FileType = Type;
+            TargetType = targetType;
+        }
+    }
+
+    public class BackgroundWorkerResultWrapper
+    {
+        public List<ListViewItem> Rows;
+        public List<ColumnHeader> Headers;
+        private BackgroundWorkerSettings InitialSettings;
+        public Type RecordType;
+
+        public BackgroundWorkerResultWrapper(BackgroundWorkerSettings settings, Type recordType)
+        {
+            Rows = new List<ListViewItem>();
+            Headers = new List<ColumnHeader>();
+            InitialSettings = settings;
+            RecordType = recordType;
+        }
+
+        public string GetFileName() { return InitialSettings.FileName; }
+        public string GetFileType(bool lower = true) { return lower ? InitialSettings.FileType.ToLower() : InitialSettings.FileType; }
+        public Type GetRecordType() { return RecordType; }
+
+        public void AddRow(ListViewItem row) { Rows.Add(row); }
+        public void AddColumnHeader(string Text, int width, HorizontalAlignment alignment, int arrayOffset = -1)
+        {
+            ColumnHeader header = new ColumnHeader();
+            header.Name = Text;
+            header.Text = Text;
+            header.Width = width;
+            header.TextAlign = alignment;
+            if (arrayOffset != -1)
+                header.Text = String.Format("{0}[{1}]", Text, arrayOffset);
+            Headers.Add(header);
+        }
     }
 }
