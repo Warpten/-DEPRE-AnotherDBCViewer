@@ -45,8 +45,8 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.CurrentFileStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.BuildIdStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
-            this.BackgroundWorkProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.sqlExportProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.BackgroundWorkProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.SQLExportWorker = new System.ComponentModel.BackgroundWorker();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -190,14 +190,6 @@
             this.BuildIdStatusStrip.Name = "BuildIdStatusStrip";
             this.BuildIdStatusStrip.Size = new System.Drawing.Size(0, 17);
             // 
-            // BackgroundWorkProgressBar
-            // 
-            this.BackgroundWorkProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.BackgroundWorkProgressBar.Name = "BackgroundWorkProgressBar";
-            this.BackgroundWorkProgressBar.Size = new System.Drawing.Size(100, 16);
-            this.BackgroundWorkProgressBar.ToolTipText = "Loading...";
-            this.BackgroundWorkProgressBar.Visible = false;
-            // 
             // sqlExportProgressBar
             // 
             this.sqlExportProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -205,6 +197,14 @@
             this.sqlExportProgressBar.Size = new System.Drawing.Size(100, 16);
             this.sqlExportProgressBar.ToolTipText = "Writing to file...";
             this.sqlExportProgressBar.Visible = false;
+            // 
+            // BackgroundWorkProgressBar
+            // 
+            this.BackgroundWorkProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.BackgroundWorkProgressBar.Name = "BackgroundWorkProgressBar";
+            this.BackgroundWorkProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.BackgroundWorkProgressBar.ToolTipText = "Loading...";
+            this.BackgroundWorkProgressBar.Visible = false;
             // 
             // SQLExportWorker
             // 

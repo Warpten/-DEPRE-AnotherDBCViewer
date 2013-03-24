@@ -57,10 +57,12 @@ namespace MyDBCViewer
                         int offset = (int)dbcFileName[0].ToString().ToUpper()[0] - 65;
 
                         items[i] = new ToolStripMenuItem(dbcFileName);
-                        items[i].Click += new EventHandler(this.OnDbcFileSelection);
 
                         if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName.AsReflectionTypeIdentifier()) != null)
+                        {
                             items[i].Image = Properties.Resources.CheckBox;
+                            items[i].Click += new EventHandler(this.OnDbcFileSelection);
+                        }
 
                         alphabeticalMenuItems[offset].DropDownItems.Add(items[i]);
                     }
@@ -87,9 +89,11 @@ namespace MyDBCViewer
 
                 foreach (ToolStripMenuItem item in loadDB2ToolStripMenuItem.DropDownItems)
                 {
-                    item.Click += new EventHandler(OnDb2FileSelection);
                     if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DB2.{0}.{1}Entry", SelectedBuild, item.Text.AsReflectionTypeIdentifier()) != null)
+                    {
                         item.Image = Properties.Resources.CheckBox;
+                        item.Click += new EventHandler(OnDb2FileSelection);
+                    }
                 }
             }
             catch (Exception /*ex*/)
