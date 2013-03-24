@@ -46,6 +46,8 @@
             this.CurrentFileStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.BuildIdStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.BackgroundWorkProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.sqlExportProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.SQLExportWorker = new System.ComponentModel.BackgroundWorker();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -162,7 +164,9 @@
             this.toolStripStatusLabel1,
             this.CurrentFileStatusStrip,
             this.BuildIdStatusStrip,
+            this.sqlExportProgressBar,
             this.BackgroundWorkProgressBar});
+            this.statusStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.statusStrip1.Location = new System.Drawing.Point(0, 411);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(920, 22);
@@ -191,7 +195,22 @@
             this.BackgroundWorkProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.BackgroundWorkProgressBar.Name = "BackgroundWorkProgressBar";
             this.BackgroundWorkProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.BackgroundWorkProgressBar.ToolTipText = "Loading...";
             this.BackgroundWorkProgressBar.Visible = false;
+            // 
+            // sqlExportProgressBar
+            // 
+            this.sqlExportProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.sqlExportProgressBar.Name = "sqlExportProgressBar";
+            this.sqlExportProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.sqlExportProgressBar.ToolTipText = "Writing to file...";
+            this.sqlExportProgressBar.Visible = false;
+            // 
+            // SQLExportWorker
+            // 
+            this.SQLExportWorker.WorkerReportsProgress = true;
+            this.SQLExportWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.OutputSQL);
+            this.SQLExportWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.OnSQlWriteProgressUpdate);
             // 
             // MainForm
             // 
@@ -234,6 +253,8 @@
         private System.Windows.Forms.ToolStripStatusLabel CurrentFileStatusStrip;
         private System.Windows.Forms.ToolStripStatusLabel BuildIdStatusStrip;
         private System.Windows.Forms.ToolStripProgressBar BackgroundWorkProgressBar;
+        private System.ComponentModel.BackgroundWorker SQLExportWorker;
+        private System.Windows.Forms.ToolStripProgressBar sqlExportProgressBar;
     }
 }
 

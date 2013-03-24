@@ -241,8 +241,27 @@ namespace MyDBCViewer
 
         private void ExportToSQL(object sender, EventArgs e)
         {
+            SQLExportWorker.RunWorkerAsync();
+        }
+
+        private dynamic GetCurrentFileRecords()
+        {
+            return CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile);
+        }
+
+        private void SetSelectedFile(string fileType, string fileExt)
+        {
+            SelectedFile = fileType;
+            CurrentFileStatusStrip.Text = String.Format("{0}.{1}", fileType, fileExt);
+        }
+
+        #region SQL Worker
+        private void OutputSQL(object sender, DoWorkEventArgs e)
+        {
             var output = new StreamWriter("output.sql");
             output.AutoFlush = true;
+
+            SQLExportWorker.ReportProgress(0);
 
             List<string> parameterList = new List<string>();
             dynamic recordWrapper = GetCurrentFileRecords();
@@ -260,6 +279,8 @@ namespace MyDBCViewer
                 break;
             }
 
+            SQLExportWorker.ReportProgress(10);
+
             output.WriteLine("INSERT INTO `{0}_dbc` ({1}) VALUES", SelectedFile, String.Join(", ", parameterList.ToArray()));
             List<string> records = new List<string>();
             foreach (var record in recordWrapper)
@@ -276,21 +297,25 @@ namespace MyDBCViewer
                 }
                 records.Add(String.Format("({0})", String.Join(",", fieldList.ToArray())));
             }
+
+            SQLExportWorker.ReportProgress(60);
+            
             output.Write(String.Join("," + Environment.NewLine, records.ToArray()) + ";");
             output.Close();
+            
+            SQLExportWorker.ReportProgress(100);
         }
+        #endregion
 
-        private dynamic GetCurrentFileRecords()
+        private void OnSQlWriteProgressUpdate(object sender, ProgressChangedEventArgs e)
         {
-            return CurrentDBClientFileType.GetProperty("Records").GetValue(CurrentDBClientFile);
-        }
+            if (e.ProgressPercentage == 0)
+                sqlExportProgressBar.Visible = true;
+            else if (e.ProgressPercentage == 100)
+                sqlExportProgressBar.Visible = false;
 
-        private void SetSelectedFile(string fileType, string fileExt)
-        {
-            SelectedFile = fileType;
-            CurrentFileStatusStrip.Text = String.Format("{0}.{1}", fileType, fileExt);
+            sqlExportProgressBar.Value = e.ProgressPercentage;
         }
-
     }
 
     public class BackgroundWorkerSettings
