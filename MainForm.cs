@@ -270,9 +270,6 @@ namespace MyDBCViewer
         {
             if (e.ProgressPercentage == 0)
                 BackgroundWorkProgressBar.Visible = true;
-            else if (e.ProgressPercentage == 100)
-                BackgroundWorkProgressBar.Visible = false;
-
             BackgroundWorkProgressBar.Value = e.ProgressPercentage;
         }
 
@@ -346,6 +343,7 @@ namespace MyDBCViewer
                         col.Width = BaseDbcFormat.IsFieldString(result.GetRecordType(), col.Name) ? 120 : -2;
                     RecordsCountLabel.Text = String.Format(@"Records: {0}", result.Rows.Count);
                     _lvRecordList.EndUpdate();
+                    BackgroundWorkProgressBar.Visible = false;
                 });
             }
             catch (Exception ex)
