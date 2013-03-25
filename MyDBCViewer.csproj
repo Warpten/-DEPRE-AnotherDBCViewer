@@ -61,7 +61,7 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\BarberShopStyleEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\BattlemasterListEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\CameraShakesEntry.cs" />
-    <Compile Include="ClientDefinitions\DBC\Cataclysm\Cfg_CategoriesEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\CfgCategoriesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\CharBaseInfoEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\CharSectionsEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\CharTitlesEntry.cs" />

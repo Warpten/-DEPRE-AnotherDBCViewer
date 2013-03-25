@@ -189,7 +189,7 @@ namespace MyDBCViewer
             dynamic recordWrapper = GetCurrentStorage();
             ClientFieldInfo[] fileInfo = BaseDbcFormat.GetStructure(CurrentDbFileType);
 
-            foreach (ClientFieldInfo info in fileInfo)
+            foreach (var info in fileInfo)
             {
                 if (info.ArraySize != 0)
                     for (int i = 0; i < info.ArraySize; ++i)
@@ -205,10 +205,10 @@ namespace MyDBCViewer
 
             int recordIndex = 0;
             int lastRecord = recordWrapper.Count - 1;
-            foreach (dynamic record in recordWrapper)
+            foreach (var record in recordWrapper)
             {
                 var fieldList = new List<string>();
-                foreach (ClientFieldInfo info in fileInfo)
+                foreach (var info in fileInfo)
                 {
                     bool isStringField = (info.FieldType == typeof(string));
                     FieldInfo fi = record.GetType().GetField(info.Name);
@@ -282,9 +282,6 @@ namespace MyDBCViewer
 
             try
             {
-                _lvRecordList.Columns.Clear();
-                _lvRecordList.Items.Clear();
-
                 BackgroundLoader.ReportProgress(0);
 
                 //! TODO: Nuke out as much reflection as possible
@@ -319,9 +316,9 @@ namespace MyDBCViewer
 
                 #region Columns loading, set to hidden
 
-                foreach (ClientFieldInfo col in columnsArray)
+                foreach (var col in columnsArray)
                     if (col.ArraySize != 0)
-                        for (int i = 0; i < col.ArraySize; ++i)
+                        for (var i = 0; i < col.ArraySize; ++i)
                             result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left, i);
                     else
                         result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left);
@@ -332,14 +329,15 @@ namespace MyDBCViewer
 
                 // Get the records
                 using (dynamic dbcRecords = CurrentStorageType.GetProperty("Records").GetValue(CurrentStorage))
-                    foreach (dynamic record in dbcRecords)
+                    foreach (var record in dbcRecords)
                         result.AddRow(BaseDbcFormat.CreateTableRow(record, CurrentDbFileType, record.GetType()));
 
-                BackgroundLoader.ReportProgress(100);
                 SetSelectedFile(settings.FileName, settings.FileType.ToLower());
+                BackgroundLoader.ReportProgress(100);
 
                 await Task.Run(() =>
                 {
+                    _lvRecordList.Clear();
                     _lvRecordList.BeginUpdate();
                     _lvRecordList.Columns.AddRange(result.Headers.ToArray());
                     _lvRecordList.Items.AddRange(result.Rows.ToArray());

@@ -14,12 +14,11 @@ namespace MyDBCViewer.Extensions
         {
             var ret = new List<char>(str.ToCharArray());
             for (int i = 0, s = ret.Count - 1; i < s; ++i)
-                if (ret[i] == '-')
-                    ret[i + 1] = (char)(ret[i + 1] - 32);
+                if (ret[i] == '-' || ret[i] == '_')
+                    ret[i + 1] = ret[i + 1].ToString().ToUpper()[0];
 
             // ReSharper disable CSharpWarnings::CS0642
-            while (ret.Remove('-')) ;
-
+            while (ret.Remove('-') || ret.Remove('_')) ;
             // ReSharper restore CSharpWarnings::CS0642
             return String.Join(String.Empty, ret.ToArray());
         }

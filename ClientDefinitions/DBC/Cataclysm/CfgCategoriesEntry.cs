@@ -2,7 +2,7 @@
 
 namespace FileStructures.DBC.Cataclysm
 {
-    public sealed class Cfg_CategoriesEntry
+    public sealed class CfgCategoriesEntry
     {
         public uint Id;
         public uint LocaleMask;
