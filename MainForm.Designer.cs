@@ -47,6 +47,7 @@
             this.BuildIdStatusStrip = new System.Windows.Forms.ToolStripStatusLabel();
             this.sqlExportProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.BackgroundWorkProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.RecordsCountLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.SQLExportWorker = new System.ComponentModel.BackgroundWorker();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -54,15 +55,13 @@
             // 
             // menuStrip1
             // 
-            this.menuStrip1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.miscToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(3, 1);
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(92, 24);
+            this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
+            this.menuStrip1.Size = new System.Drawing.Size(920, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -142,7 +141,6 @@
             this._lvRecordList.GridLines = true;
             this._lvRecordList.HideSelection = false;
             this._lvRecordList.Location = new System.Drawing.Point(3, 28);
-            this._lvRecordList.MinimumSize = new System.Drawing.Size(914, 380);
             this._lvRecordList.MultiSelect = false;
             this._lvRecordList.Name = "_lvRecordList";
             this._lvRecordList.Size = new System.Drawing.Size(914, 380);
@@ -156,7 +154,6 @@
             this.BackgroundLoader.WorkerSupportsCancellation = true;
             this.BackgroundLoader.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundLoadFile);
             this.BackgroundLoader.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundLoaderProgressInform);
-            this.BackgroundLoader.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundLoaderProgressCompleteInform);
             // 
             // statusStrip1
             // 
@@ -165,7 +162,8 @@
             this.CurrentFileStatusStrip,
             this.BuildIdStatusStrip,
             this.sqlExportProgressBar,
-            this.BackgroundWorkProgressBar});
+            this.BackgroundWorkProgressBar,
+            this.RecordsCountLabel});
             this.statusStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.statusStrip1.Location = new System.Drawing.Point(0, 411);
             this.statusStrip1.Name = "statusStrip1";
@@ -195,6 +193,7 @@
             this.sqlExportProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.sqlExportProgressBar.Name = "sqlExportProgressBar";
             this.sqlExportProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.sqlExportProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.sqlExportProgressBar.ToolTipText = "Writing to file...";
             this.sqlExportProgressBar.Visible = false;
             // 
@@ -203,8 +202,14 @@
             this.BackgroundWorkProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.BackgroundWorkProgressBar.Name = "BackgroundWorkProgressBar";
             this.BackgroundWorkProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.BackgroundWorkProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.BackgroundWorkProgressBar.ToolTipText = "Loading...";
             this.BackgroundWorkProgressBar.Visible = false;
+            // 
+            // RecordsCountLabel
+            // 
+            this.RecordsCountLabel.Name = "RecordsCountLabel";
+            this.RecordsCountLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // SQLExportWorker
             // 
@@ -255,6 +260,7 @@
         private System.Windows.Forms.ToolStripProgressBar BackgroundWorkProgressBar;
         private System.ComponentModel.BackgroundWorker SQLExportWorker;
         private System.Windows.Forms.ToolStripProgressBar sqlExportProgressBar;
+        private System.Windows.Forms.ToolStripStatusLabel RecordsCountLabel;
     }
 }
 

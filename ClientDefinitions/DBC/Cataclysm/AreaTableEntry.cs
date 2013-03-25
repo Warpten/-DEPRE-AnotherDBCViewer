@@ -27,6 +27,6 @@
         public uint UnkCataclysm2;
         public uint UnkCataclysm3;
         public uint UnkCataclysm4;
-        public uint UnkCataclysm5;
+        public int UnkCataclysm5;
     }
 }

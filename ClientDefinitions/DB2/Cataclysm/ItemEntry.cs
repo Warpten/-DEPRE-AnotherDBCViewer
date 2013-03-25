@@ -1,6 +1,6 @@
 ﻿namespace FileStructures.DB2.Cataclysm
 {
-    public sealed class ItemEntry : BaseDbcFormat
+    public sealed class ItemEntry
     {
         public uint Id;
         public uint Class;

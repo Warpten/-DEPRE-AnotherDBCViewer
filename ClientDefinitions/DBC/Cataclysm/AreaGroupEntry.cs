@@ -2,7 +2,7 @@
 
 namespace FileStructures.DBC.Cataclysm
 {
-    public sealed class AreaGroupEntry : BaseDbcFormat
+    public sealed class AreaGroupEntry
     {
         public uint Id;
 

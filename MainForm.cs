@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using DBFilesClient.NET;
 using FileStructures;
@@ -15,16 +16,10 @@ namespace MyDBCViewer
 {
     public partial class MainForm : Form
     {
-        public static Type CurrentDbFileType;
-        public static object CurrentStorage;
-
-        //< Current DBC/DB2 being read
-        public static Type CurrentStorageType;
-
+        public static object CurrentStorage;   //< DBCStorage<T>
+        public static Type CurrentStorageType; //< typeof(DBCStorage<T>)
+        public static Type CurrentDbFileType;  //< U in typeof(T<U>)
         public static string SelectedBuild; //< String identifying the build (Cataclysm or WoTLK)
-
-        //< Underlying type of the object above
-        //< Inner structure in the current file (DBCStorage<T>: T)
         public static string SelectedFile; //< File currently displayed
 
         public MainForm()
@@ -34,7 +29,6 @@ namespace MyDBCViewer
 
         // ReSharper disable InconsistentNaming
         private void ExportToSQL(object sender, EventArgs e)
-
         // ReSharper restore InconsistentNaming
         {
             SQLExportWorker.RunWorkerAsync();
@@ -185,7 +179,6 @@ namespace MyDBCViewer
 
         // ReSharper disable InconsistentNaming
         private void OutputSQL(object sender, DoWorkEventArgs e)
-
         // ReSharper restore InconsistentNaming
         {
             var output = new StreamWriter("output.sql") { AutoFlush = true };
@@ -273,26 +266,6 @@ namespace MyDBCViewer
 
         #region Background DBC/DB2 loader
 
-        private void BackgroundLoaderProgressCompleteInform(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (e.Cancelled)
-            {
-                Utils.BoxError(e.Result as string);
-                return;
-            }
-
-            var result = (BackgroundWorkerResultWrapper)e.Result;
-
-            _lvRecordList.Columns.Clear();
-            _lvRecordList.Items.Clear();
-
-            _lvRecordList.Columns.AddRange(result.Headers.ToArray());
-            _lvRecordList.Items.AddRange(result.Rows.ToArray());
-
-            foreach (ColumnHeader col in _lvRecordList.Columns)
-                col.Width = BaseDbcFormat.IsFieldString(result.GetRecordType(), col.Name) ? 120 : -2;
-        }
-
         private void BackgroundLoaderProgressInform(object sender, ProgressChangedEventArgs e)
         {
             if (e.ProgressPercentage == 0)
@@ -303,28 +276,35 @@ namespace MyDBCViewer
             BackgroundWorkProgressBar.Value = e.ProgressPercentage;
         }
 
-        private void BackgroundLoadFile(object sender, DoWorkEventArgs e)
+        private async void BackgroundLoadFile(object sender, DoWorkEventArgs e)
         {
             var settings = (BackgroundWorkerSettings)e.Argument;
 
             try
             {
+                _lvRecordList.Columns.Clear();
+                _lvRecordList.Items.Clear();
+
                 BackgroundLoader.ReportProgress(0);
 
-                //! TODO: Nuke out as MUCH reflection as possible
+                //! TODO: Nuke out as much reflection as possible
                 CurrentDbFileType = Assembly.GetExecutingAssembly()
                                             .GetFormatType("FileStructures.{2}.{0}.{1}Entry", SelectedBuild,
                                                            settings.FileName.AsReflectionTypeIdentifier(),
                                                            settings.FileType);
+
                 ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(CurrentDbFileType);
+
                 if (columnsArray.Length == 0)
                     throw new Exception(String.Format("No definition found for {0}.{2} ({1})", settings.FileName,
+
                                                       SelectedBuild, settings.FileType.ToLower()));
 
                 BackgroundLoader.ReportProgress(10);
 
                 // Load the file
                 CurrentStorageType = settings.TargetType.MakeGenericType(new[] { CurrentDbFileType });
+
                 CurrentStorage = Activator.CreateInstance(CurrentStorageType);
                 using (
                     var strm =
@@ -348,23 +328,33 @@ namespace MyDBCViewer
 
                 #endregion Columns loading, set to hidden
 
-                BackgroundLoader.ReportProgress(80);
+                BackgroundLoader.ReportProgress(60);
 
-                //! THIS IS THE MOST TIME-CONSUMING PROCESS, ALONG WITH RENDERING
                 // Get the records
                 using (dynamic dbcRecords = CurrentStorageType.GetProperty("Records").GetValue(CurrentStorage))
                     foreach (dynamic record in dbcRecords)
                         result.AddRow(BaseDbcFormat.CreateTableRow(record, CurrentDbFileType, record.GetType()));
 
                 BackgroundLoader.ReportProgress(100);
-
                 SetSelectedFile(settings.FileName, settings.FileType.ToLower());
-                e.Result = result;
+
+                await Task.Run(() =>
+                {
+                    _lvRecordList.BeginUpdate();
+                    _lvRecordList.Columns.AddRange(result.Headers.ToArray());
+                    _lvRecordList.Items.AddRange(result.Rows.ToArray());
+
+                    foreach (ColumnHeader col in _lvRecordList.Columns)
+                        col.Width = BaseDbcFormat.IsFieldString(result.GetRecordType(), col.Name) ? 120 : -2;
+                    RecordsCountLabel.Text = String.Format(@"Records: {0}", result.Rows.Count);
+                    _lvRecordList.EndUpdate();
+                });
             }
             catch (Exception ex)
             {
                 e.Result = ex.Message;
                 e.Cancel = true;
+                Utils.BoxError(ex.Message);
             }
         }
 
