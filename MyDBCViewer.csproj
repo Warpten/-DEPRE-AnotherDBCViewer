@@ -103,10 +103,15 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\GemPropertiesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\GlyphPropertiesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\GlyphSlotEntry.cs" />
-    <Compile Include="ClientDefinitions\DBC\Cataclysm\gtSpellScalingEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\GtEntries.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\GuildPerkSpellsEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\HelmetGeosetVisDataEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\HolidayDescriptionsEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\HolidayNamesEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\HolidaysEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ImportEntries.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemPriceBaseEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemReforgeEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MailTemplateEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MapDifficultyEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MapEntry.cs" />
