@@ -63,6 +63,7 @@ namespace MyDBCViewer
                         alphabeticalMenuItems[i] =
                             new ToolStripMenuItem(((char)Enumerable.Range('A', 'Z' - 'A' + 1).ElementAt(i)).ToString(CultureInfo.InvariantCulture));
 
+                    // int validatedCount = 0;
                     var items = new ToolStripMenuItem[dbcNames.Length];
                     for (int i = 0; i < dbcNames.Length; ++i)
                     {
@@ -78,9 +79,11 @@ namespace MyDBCViewer
                         {
                             items[i].Image = Resources.CheckBox;
                             items[i].Click += OnDbcFileSelection;
+                            // ++validatedCount;
                         }
 
                         alphabeticalMenuItems[offset].DropDownItems.Add(items[i]);
+                        // alphabeticalMenuItems[offset].Image = (validatedCount == alphabeticalMenuItems[offset].DropDownItems.Count - 1) ? Resources.CheckBox : null;
                     }
 
                     for (int i = 0; i < 26; ++i)
@@ -136,22 +139,10 @@ namespace MyDBCViewer
             BuildIdStatusStrip.Text = @"@ " + SelectedBuild;
 
             foreach (ToolStripMenuItem alphabetical in loadDBCToolStripMenuItem.DropDownItems)
-            {
-                int validatedCount = 0;
                 foreach (ToolStripMenuItem dbc in alphabetical.DropDownItems)
-                    if (
-                        Assembly.GetExecutingAssembly()
-                                .GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild,
-                                               dbc.Text.AsReflectionTypeIdentifier()) == null)
-                        dbc.Image = null;
-                    else
-                    {
-                        dbc.Image = Resources.CheckBox;
-                        ++validatedCount;
-                    }
-
-                alphabetical.Image = validatedCount == alphabetical.DropDownItems.Count ? Resources.CheckBox : null;
-            }
+                    dbc.Image = Assembly.GetExecutingAssembly()
+                                        .GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild,
+                                                       dbc.Text.AsReflectionTypeIdentifier()) == null ? null : Resources.CheckBox;
 
             foreach (ToolStripMenuItem dbc in loadDB2ToolStripMenuItem.DropDownItems)
                 dbc.Image = Assembly.GetExecutingAssembly()
@@ -297,15 +288,24 @@ namespace MyDBCViewer
                 BackgroundLoader.ReportProgress(10);
 
                 // Load the file
-                CurrentStorageType = settings.TargetType.MakeGenericType(new[] { CurrentDbFileType });
+                CurrentStorageType = settings.TargetType.MakeGenericType(new Type[] { CurrentDbFileType });
+                // CurrentStorage = CurrentStorageType.InvokeMember(null, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.CreateInstance, null, null, null);
 
-                CurrentStorage = Activator.CreateInstance(CurrentStorageType);
+                try
+                {
+                    CurrentStorage = Activator.CreateInstance(CurrentStorageType);
+                }
+                catch (Exception /*ex*/)
+                {
+                    Utils.BoxError("Invalid type in structure for {0}.{1}", settings.FileName, settings.FileType);
+                    return;
+                }
                 using (
                     var strm =
                         new FileStream(String.Format("{0}\\{1}.{0}", settings.FileType.ToLower(), settings.FileName),
                                        FileMode.Open))
                     CurrentStorageType
-                        .GetMethod("Load", new[] { typeof(FileStream) })
+                        .GetMethod("Load", new Type[] { typeof(FileStream) })
                         .Invoke(CurrentStorage, new object[] { strm });
 
                 BackgroundLoader.ReportProgress(40);
@@ -348,6 +348,8 @@ namespace MyDBCViewer
             }
             catch (Exception ex)
             {
+                while (ex.InnerException != null)
+                    ex = ex.InnerException;
                 e.Result = ex.Message;
                 e.Cancel = true;
                 Utils.BoxError(ex.Message);
