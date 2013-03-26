@@ -1,6 +1,6 @@
 ﻿namespace FileStructures.DBC.Cataclysm
 {
-    internal class AuctionHouseEntry
+    public sealed class AuctionHouseEntry
     {
         public uint Id;
         public uint Faction;

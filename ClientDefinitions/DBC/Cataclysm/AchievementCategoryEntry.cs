@@ -1,6 +1,6 @@
 ﻿namespace FileStructures.DBC.Cataclysm
 {
-    internal class AchievementCategoryEntry
+    public sealed class AchievementCategoryEntry
     {
         public uint Id;
         public int ParentCategory;

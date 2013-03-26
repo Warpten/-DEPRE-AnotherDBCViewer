@@ -72,10 +72,7 @@ namespace MyDBCViewer
 
                         items[i] = new ToolStripMenuItem(dbcFileName);
 
-                        if (
-                            Assembly.GetExecutingAssembly()
-                                    .GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild,
-                                                   dbcFileName.AsReflectionTypeIdentifier()) != null)
+                        if (Assembly.GetExecutingAssembly().GetFormatType("FileStructures.DBC.{0}.{1}Entry", SelectedBuild, dbcFileName.AsReflectionTypeIdentifier()) != null)
                         {
                             items[i].Image = Resources.CheckBox;
                             items[i].Click += OnDbcFileSelection;
@@ -288,25 +285,16 @@ namespace MyDBCViewer
                 BackgroundLoader.ReportProgress(10);
 
                 // Load the file
-                CurrentStorageType = settings.TargetType.MakeGenericType(new Type[] { CurrentDbFileType });
+                CurrentStorageType = settings.TargetType.MakeGenericType(new[] { CurrentDbFileType });
                 // CurrentStorage = CurrentStorageType.InvokeMember(null, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.CreateInstance, null, null, null);
 
-                try
+                CurrentStorage = Activator.CreateInstance(CurrentStorageType);
+
+                using (var strm = new FileStream(String.Format(@"{0}\{1}.{0}", settings.FileType.ToLower(), settings.FileName), FileMode.Open))
                 {
-                    CurrentStorage = Activator.CreateInstance(CurrentStorageType);
+                    MethodInfo mi = CurrentStorageType.GetMethod("Load", new[] { typeof(FileStream) });
+                    mi.Invoke(CurrentStorage, new[] { (object)strm });
                 }
-                catch (Exception /*ex*/)
-                {
-                    Utils.BoxError("Invalid type in structure for {0}.{1}", settings.FileName, settings.FileType);
-                    return;
-                }
-                using (
-                    var strm =
-                        new FileStream(String.Format("{0}\\{1}.{0}", settings.FileType.ToLower(), settings.FileName),
-                                       FileMode.Open))
-                    CurrentStorageType
-                        .GetMethod("Load", new Type[] { typeof(FileStream) })
-                        .Invoke(CurrentStorage, new object[] { strm });
 
                 BackgroundLoader.ReportProgress(40);
                 var result = new BackgroundWorkerResultWrapper(settings, CurrentDbFileType);
@@ -343,6 +331,7 @@ namespace MyDBCViewer
                         col.Width = BaseDbcFormat.IsFieldString(result.GetRecordType(), col.Name) ? 120 : -2;
                     RecordsCountLabel.Text = String.Format(@"Records: {0}", result.Rows.Count);
                     _lvRecordList.EndUpdate();
+
                     BackgroundWorkProgressBar.Visible = false;
                 });
             }

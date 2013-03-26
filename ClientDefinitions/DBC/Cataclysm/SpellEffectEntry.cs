@@ -24,23 +24,18 @@ namespace FileStructures.DBC.Cataclysm
         public uint RadiusIndex;
         public uint RadiusMaxIndex;
         public float RealPointsPerLevel;
-
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 3)]
         public uint[] SpellClassMask;
-
         public uint TriggerSpell;
         public uint ImplicitTargetA;
         public uint ImplicitTargetB;
         public uint SpellId;
         public uint Index;
         public uint Unk0;
-
         [StoragePresence(StoragePresenceOption.Exclude)]
         public float ScalingMultiplier;
-
         [StoragePresence(StoragePresenceOption.Exclude)]
         public float RandomPointsScalingMultiplier;
-
         [StoragePresence(StoragePresenceOption.Exclude)]
         public float ComboPointsScalingMultiplier;
     }
