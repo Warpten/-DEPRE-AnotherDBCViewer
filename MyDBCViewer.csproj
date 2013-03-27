@@ -112,6 +112,9 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ImportEntries.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemPriceBaseEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemReforgeEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemSetEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\LFGDungeonEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\LiquidTypeEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MailTemplateEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MapDifficultyEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MapEntry.cs" />
@@ -121,7 +124,14 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MovieEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MovieFileDataEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MovieVariationEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\NameGenEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\NumTalentsAtLevelEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\OverrideSpellDataEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\PhaseEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\PvpDifficultyEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestFactionRewardEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestSortEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestXPEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ScreenEffectEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\SkillLineAbilityEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\SkillLineEntry.cs" />
