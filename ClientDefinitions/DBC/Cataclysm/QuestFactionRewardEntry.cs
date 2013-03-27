@@ -6,6 +6,6 @@ namespace FileStructures.DBC.Cataclysm
     {
         public uint Id;
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 10)]
-        public uint[] RewardAmount;
+        public int[] RewardAmount;
     }
 }
