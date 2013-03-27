@@ -132,6 +132,9 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestFactionRewardEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestSortEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestXPEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\RandomPropertiesPointsEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ScalingStatDistributionEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ScalingStatValuesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ScreenEffectEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\SkillLineAbilityEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\SkillLineEntry.cs" />
@@ -165,6 +168,7 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\SummonPropertiesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TalentTabEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TalentTreePrimarySpellsEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\TaxiNodesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TaxiPathEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TaxiPathNodeEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TotemCategoryEntry.cs" />
