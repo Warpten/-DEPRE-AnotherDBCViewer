@@ -135,9 +135,13 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\PhaseEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\PvpDifficultyEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestFactionRewardEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestInfoEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestSortEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\QuestXPEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\RandomPropertiesPointsEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ResearchBranchEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ResearchProjectEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ResearchSiteEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ScalingStatDistributionEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ScalingStatValuesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ScreenEffectEntry.cs" />
