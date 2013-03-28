@@ -286,8 +286,6 @@ namespace MyDBCViewer
 
                 // Load the file
                 CurrentStorageType = settings.TargetType.MakeGenericType(new[] { CurrentDbFileType });
-                // CurrentStorage = CurrentStorageType.InvokeMember(null, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.CreateInstance, null, null, null);
-
                 CurrentStorage = Activator.CreateInstance(CurrentStorageType);
 
                 using (var strm = new FileStream(String.Format(@"{0}\{1}.{0}", settings.FileType.ToLower(), settings.FileName), FileMode.Open))
@@ -352,10 +350,8 @@ namespace MyDBCViewer
     {
         // ReSharper disable InconsistentNaming
         private readonly BackgroundWorkerSettings InitialSettings;
-
         // ReSharper restore InconsistentNaming
         public List<ColumnHeader> Headers;
-
         public Type RecordType;
         public List<ListViewItem> Rows;
 

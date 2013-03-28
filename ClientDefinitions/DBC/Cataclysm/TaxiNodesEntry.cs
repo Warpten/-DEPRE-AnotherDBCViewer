@@ -10,9 +10,10 @@ namespace FileStructures.DBC.Cataclysm
         public float Y;
         public float Z;
         public string Name;
-        [StoragePresence(StoragePresenceOption.Include, ArraySize = 3)]
+        [StoragePresence(StoragePresenceOption.Include, ArraySize = 2)]
         public uint[] MountNpcId;
-        public float Unk0;
+        public uint Unk0;
         public float Unk1;
+        public float Unk2;
     }
 }

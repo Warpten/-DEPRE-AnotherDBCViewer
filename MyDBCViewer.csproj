@@ -178,6 +178,7 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TaxiPathNodeEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TotemCategoryEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\WorldSafeLocsEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\WorldStateUIEntry.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
