@@ -11,11 +11,11 @@ namespace FileStructures.DBC.Cataclysm
         public uint Id;
         public string Name;
         public string Description;
-        public int Unk0;
-        public int Unk1;
-        public uint ItemId;
-        public int Unk2;
-        public string IconName;
-        public int Unk3; // Chance ?
+        public int Type; // 0 Common - 1 Rare
+        public int BranchId; // ResearchBranch.dbc
+        public uint SpellId;
+        public int MaxKeystones; // Amount that can be used in project
+        public string IconPath;
+        public int Fragments; // Amount needed
     }
 }

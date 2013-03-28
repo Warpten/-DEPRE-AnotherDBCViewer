@@ -8,7 +8,7 @@ namespace FileStructures.DBC.Cataclysm
         public string Name;
         public int Unk0;
         public int Unk1;
-        public string IconName;
-        public int Unk2;
+        public string IconPath;
+        public int KeystoneId; // Item
     }
 }
