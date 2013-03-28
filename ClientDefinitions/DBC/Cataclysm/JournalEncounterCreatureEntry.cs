@@ -8,6 +8,6 @@
         public uint Index;
         public uint Unk1;
         public string Name;
-        public uint Unk2;
+        public string SubName;
     }
 }
