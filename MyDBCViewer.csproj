@@ -113,6 +113,11 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemPriceBaseEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemReforgeEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemSetEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\JournalEncounterItemEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\JournalEncounterEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\JournalEncounterCreatureEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\JournalEncounterSectionEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\JournalInstanceEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\LFGDungeonEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\LiquidTypeEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MailTemplateEntry.cs" />
