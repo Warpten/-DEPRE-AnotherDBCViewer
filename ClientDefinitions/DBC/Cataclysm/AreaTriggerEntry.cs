@@ -8,8 +8,8 @@
         public float Y;
         public float Z;
         public uint UnkCataclysm1;
+        public uint Phase;
         public uint UnkCataclysm2;
-        public uint UnkCataclysm3;
         public float Radius;
         public float Box_X;
         public float Box_Y;

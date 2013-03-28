@@ -19,6 +19,6 @@ namespace FileStructures.DBC.Cataclysm
         public uint MaxGroupSizeRated;
         public uint MinPlayers;
         public uint MaxPlayers;
-        public uint UnkCataclysm2;
+        public uint UnkCataclysm;
     }
 }

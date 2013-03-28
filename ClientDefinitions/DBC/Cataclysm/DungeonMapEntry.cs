@@ -2,8 +2,8 @@
 {
     public sealed class DungeonMapEntry
     {
+        public uint Id;
         public uint MapId;
-        public uint Unk0;
         public int Layer; // Typically, ICC
         public float MinX; //! TODO: Possibly swapped orders
         public float MinY;

@@ -9,7 +9,7 @@ namespace FileStructures.DBC.Cataclysm
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 10)]
         public uint[] Spells;
 
-        public uint Unk;
+        public uint Flags;
         public string Name;
     }
 }

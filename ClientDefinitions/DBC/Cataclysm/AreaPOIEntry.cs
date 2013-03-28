@@ -10,7 +10,7 @@ namespace FileStructures.DBC.Cataclysm
         public float X;
         public float Y;
         public uint MapId;
-        public int Unk0;
+        public int Flags;
         public int ZoneId;
         public string Name;
         public string Name2;
