@@ -49,9 +49,9 @@ namespace FileStructures
             return resultSet;
         }
 
-        public static ListViewItem CreateTableRow(dynamic rowInfo, Type structInfo, Type rowStruct)
+        public static ListViewItem CreateTableRow(dynamic rowInfo, Type rowStruct)
         {
-            var propsList = structInfo.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            var propsList = rowStruct.GetFields(BindingFlags.Instance | BindingFlags.Public);
             var rowData = new List<string>();
 
             foreach (var propInfo in propsList)

@@ -130,6 +130,7 @@
             this.FilterButton.Name = "FilterButton";
             this.FilterButton.Size = new System.Drawing.Size(145, 22);
             this.FilterButton.Text = "Filter...";
+            this.FilterButton.Click += new System.EventHandler(this.OnFilterMenuSelect);
             // 
             // _lvRecordList
             // 
@@ -202,7 +203,6 @@
             this.BackgroundWorkProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.BackgroundWorkProgressBar.Name = "BackgroundWorkProgressBar";
             this.BackgroundWorkProgressBar.Size = new System.Drawing.Size(100, 16);
-            this.BackgroundWorkProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.BackgroundWorkProgressBar.ToolTipText = "Loading...";
             this.BackgroundWorkProgressBar.Visible = false;
             // 
@@ -246,7 +246,7 @@
         private System.Windows.Forms.ToolStripMenuItem loadDBCToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem miscToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toSQLToolStripMenuItem;
-        private System.Windows.Forms.ListView _lvRecordList;
+        // private System.Windows.Forms.ListView _lvRecordList;
         private System.ComponentModel.BackgroundWorker BackgroundLoader;
         private System.Windows.Forms.ToolStripMenuItem _dbcVersionSelector;
         private System.Windows.Forms.ToolStripMenuItem _WoTLKBuild;
@@ -261,6 +261,7 @@
         private System.ComponentModel.BackgroundWorker SQLExportWorker;
         private System.Windows.Forms.ToolStripProgressBar sqlExportProgressBar;
         private System.Windows.Forms.ToolStripStatusLabel RecordsCountLabel;
+        private System.Windows.Forms.ListView _lvRecordList;
     }
 }
 

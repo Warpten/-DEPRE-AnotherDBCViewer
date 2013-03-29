@@ -183,6 +183,12 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TotemCategoryEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\WorldSafeLocsEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\WorldStateUIEntry.cs" />
+    <Compile Include="CorrectedListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CorrectedListView.Designer.cs">
+      <DependentUpon>CorrectedListView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

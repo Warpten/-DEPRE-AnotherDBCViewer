@@ -64,5 +64,11 @@ namespace MyDBCViewer.Extensions
         {
             return str.Replace(@"""", @"\""");
         }
+
+        public static void DoubleBuffering(this Control control, bool enable)
+        {
+            var method = typeof(Control).GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(control, new object[] { ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, enable });
+        }
     }
 }
