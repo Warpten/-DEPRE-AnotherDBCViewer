@@ -17,7 +17,7 @@
         public int Entrance_map;
         public float EntranceX;
         public float EntranceY;
-        public uint TimeOfDayOverride;
+        public int TimeOfDayOverride;
         public uint Addon;
         public uint ExpireTime;
         public uint MaxPlayers;

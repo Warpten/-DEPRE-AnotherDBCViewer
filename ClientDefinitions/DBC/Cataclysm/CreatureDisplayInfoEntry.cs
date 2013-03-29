@@ -11,9 +11,9 @@ namespace FileStructures.DBC.Cataclysm
         public float Scale;
         public uint Opacity;
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 3)]
-        public uint[] Skin;
-        public uint PortraitTextureName;
-        public uint SizeClass;
+        public string[] Skin;
+        public string PortraitTextureName;
+        public int SizeClass;
         public uint BloodId;
         public uint NPCSoundId;
         public uint ParticleColorId;
