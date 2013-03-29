@@ -18,7 +18,7 @@ namespace MyDBCViewer
     {
         public string SelectedBuild; //< String identifying the build (Cataclysm or WoTLK)
         public string SelectedFile; //< File currently displayed
-        public BackgroundWorkerResultWrapper Storage; //< Contains information about every record currently held.
+        public FileInfoStorage Storage; //< Contains information about every record currently held.
 
         public MainForm()
         {
@@ -28,11 +28,6 @@ namespace MyDBCViewer
         private void ExportToSQL(object sender, EventArgs e)
         {
             SQLExportWorker.RunWorkerAsync();
-        }
-
-        private dynamic GetCurrentStorage()
-        {
-            return Storage.RecordType.GetProperty("Records").GetValue(Storage.Store);
         }
 
         private void OnApplicationLoad(object sender, EventArgs e)
@@ -173,7 +168,6 @@ namespace MyDBCViewer
             SQLExportWorker.ReportProgress(0);
 
             var parameterList = new List<string>();
-            dynamic recordWrapper = GetCurrentStorage();
             ClientFieldInfo[] fileInfo = BaseDbcFormat.GetStructure(Storage.RecordType);
 
             foreach (var info in fileInfo)
@@ -187,12 +181,14 @@ namespace MyDBCViewer
 
             output.WriteLine("INSERT INTO `{0}Records` ({1}) VALUES", SelectedFile,
                              String.Join(", ", parameterList.ToArray()));
+
             parameterList.Clear(); // Reuse it
+
             SQLExportWorker.ReportProgress(50);
 
             int recordIndex = 0;
-            int lastRecord = recordWrapper.Count - 1;
-            foreach (var record in recordWrapper)
+            int lastRecord = Storage.Store.Count - 1;
+            foreach (var record in Storage.Store)
             {
                 var fieldList = new List<string>();
                 foreach (var info in fileInfo)
@@ -201,13 +197,13 @@ namespace MyDBCViewer
                     FieldInfo fi = record.GetType().GetField(info.Name);
                     if (info.ArraySize != 0)
                     {
-                        for (int i = 0; i < info.ArraySize; ++i)
+                        dynamic value = fi.GetValue(record); // .ToString();
+                        foreach (object item in value)
                         {
-                            string value = fi.GetValue(record)[i].ToString();
                             if (isStringField)
-                                fieldList.Add("\"" + value.Escape() + "\"");
+                                fieldList.Add("\"" + item.ToString().Escape() + "\"");
                             else
-                                fieldList.Add(value);
+                                fieldList.Add(item.ToString());
                         }
                     }
                     else
@@ -262,25 +258,25 @@ namespace MyDBCViewer
 
         private async void BackgroundLoadFile(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorkerResultWrapper result = new BackgroundWorkerResultWrapper((BackgroundWorkerSettings)e.Argument, ref _lvRecordList);
+            Storage = new FileInfoStorage((BackgroundWorkerSettings)e.Argument, ref _lvRecordList);
 
             try
             {
                 BackgroundLoader.ReportProgress(0);
 
-                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(result.RecordType);
+                ClientFieldInfo[] columnsArray = BaseDbcFormat.GetStructure(Storage.RecordType);
 
                 if (columnsArray.Length == 0)
-                    throw new Exception(String.Format("No definition found for {0}.{2} ({1})", result.GetFileName(),
-                                                      SelectedBuild, result.GetFileType().ToLower()));
+                    throw new Exception(String.Format("No definition found for {0}.{2} ({1})", Storage.GetFileName(),
+                                                      SelectedBuild, Storage.GetFileType().ToLower()));
 
                 BackgroundLoader.ReportProgress(10);
 
                 // Load the file
-                var currentStorageType = result.StorageType.MakeGenericType(new[] { result.RecordType });
+                Type currentStorageType = Storage.StorageType.MakeGenericType(new[] { Storage.RecordType });
                 var currentStorage = Activator.CreateInstance(currentStorageType);
 
-                using (var strm = new FileStream(String.Format(@"{0}\{1}.{0}", result.GetFileType().ToLower(), result.GetFileName()), FileMode.Open))
+                using (var strm = new FileStream(String.Format(@"{0}\{1}.{0}", Storage.GetFileType().ToLower(), Storage.GetFileName()), FileMode.Open))
                 {
                     MethodInfo mi = currentStorageType.GetMethod("Load", new[] { typeof(FileStream) });
                     mi.Invoke(currentStorage, new[] { (object)strm });
@@ -289,14 +285,14 @@ namespace MyDBCViewer
                 BackgroundLoader.ReportProgress(40);
 
                 #region Columns loading, set to hidden
-                result.ClearStore();
+                Storage.ClearStore();
 
                 foreach (var col in columnsArray)
                     if (col.ArraySize != 0)
                         for (var i = 0; i < col.ArraySize; ++i)
-                            result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left, i);
+                            Storage.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left, i);
                     else
-                        result.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left);
+                        Storage.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left);
 
                 #endregion Columns loading, set to hidden
 
@@ -306,12 +302,12 @@ namespace MyDBCViewer
                 using (dynamic dbcRecords = currentStorageType.GetProperty("Records").GetValue(currentStorage))
                     foreach (var record in dbcRecords)
                         // result.AddRenderingRow(BaseDbcFormat.CreateTableRow(record, CurrentDbFileType, record.GetType()));
-                        result.AddRecord(record);
+                        Storage.AddRecord(record);
 
-                SetSelectedFile(result.GetFileName(), result.GetFileType().ToLower());
+                SetSelectedFile(Storage.GetFileName(), Storage.GetFileType().ToLower());
                 BackgroundLoader.ReportProgress(100);
 
-                await Task.Run(() => result.Render(ref _lvRecordList, ref RecordsCountLabel, ref BackgroundWorkProgressBar));
+                await Task.Run(() => Storage.Render(ref _lvRecordList, ref RecordsCountLabel, ref BackgroundWorkProgressBar));
             }
             catch (Exception ex)
             {
@@ -331,7 +327,7 @@ namespace MyDBCViewer
         }
     }
 
-    public class BackgroundWorkerResultWrapper
+    public class FileInfoStorage
     {
         // ReSharper disable InconsistentNaming
         private BackgroundWorkerSettings InitialSettings;
@@ -349,7 +345,7 @@ namespace MyDBCViewer
         public List<object> Store;
         // ReSharper restore InconsistentNaming
 
-        public BackgroundWorkerResultWrapper(BackgroundWorkerSettings settings, ref ListView renderer)
+        public FileInfoStorage(BackgroundWorkerSettings settings, ref ListView renderer)
         {
             Rows = new List<ListViewItem>();
             Headers = new List<ColumnHeader>();
