@@ -5,7 +5,7 @@
         public uint Id;
         public uint Category;
         public uint Faction;
-        public uint Type;
+        public int Type;
         public int Slot;
         public uint Flags;
     }
