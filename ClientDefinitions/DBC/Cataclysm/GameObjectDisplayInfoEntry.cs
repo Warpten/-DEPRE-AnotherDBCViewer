@@ -7,7 +7,7 @@ namespace FileStructures.DBC.Cataclysm
         public int DisplayId;
         public string FileName;
         [StoragePresence(StoragePresenceOption.Include, ArraySize = 10)]
-        public int[] Unk0;
+        public int[] SoundId;
         public float MinX;
         public float MinY;
         public float MinZ;
