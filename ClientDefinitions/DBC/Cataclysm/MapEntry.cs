@@ -12,7 +12,7 @@
         public uint LinkedZone;
         public string HordeIntro;
         public string AllianceIntro;
-        public uint MultimapId;
+        public int MultimapId;
         public float BattlefieldMapIconScale;
         public int Entrance_map;
         public float EntranceX;
