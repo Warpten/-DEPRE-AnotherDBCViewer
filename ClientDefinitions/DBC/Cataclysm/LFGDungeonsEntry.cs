@@ -22,5 +22,8 @@ namespace FileStructures.DBC.Cataclysm
         public uint GroupType;
         public string Description;
         public uint RandomCategoryId;
+        public uint UnkCataclysm1;
+        public uint UnkCataclysm2;
+        public uint UnkCataclysm3;
     }
 }
