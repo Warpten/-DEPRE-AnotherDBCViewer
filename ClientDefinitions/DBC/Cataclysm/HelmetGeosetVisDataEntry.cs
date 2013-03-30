@@ -8,7 +8,7 @@
         public uint Facial2Flags;
         public uint Facial3Flags;
         public uint EarsFlags;
-        public uint Unk1;
-        public uint Unk2;
+        public int Unk1;
+        public int Unk2;
     }
 }

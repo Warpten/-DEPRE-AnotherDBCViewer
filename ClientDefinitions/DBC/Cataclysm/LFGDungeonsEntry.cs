@@ -2,7 +2,7 @@
 
 namespace FileStructures.DBC.Cataclysm
 {
-    public sealed class LFGDungeonEntry
+    public sealed class LFGDungeonsEntry
     {
         public uint Id;
         public string Name;
