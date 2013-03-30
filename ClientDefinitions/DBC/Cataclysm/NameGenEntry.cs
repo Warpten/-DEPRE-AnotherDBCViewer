@@ -5,6 +5,6 @@
         public uint Id;
         public string Name;
         public uint Race;
-        public uint Class;
+        public uint Gender; // 0 Male, 1 Female
     }
 }
