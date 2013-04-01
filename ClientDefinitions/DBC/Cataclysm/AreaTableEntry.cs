@@ -14,13 +14,12 @@
         public uint ZoneIntroMusicTable;
         public int Level;
         public string Name;
-        public uint StringFlags;
-        public uint FactionFlags;
+        public uint FactionGroupMask;
         public uint LiquidType1;
         public uint LiquidType2;
         public uint LiquidType3;
         public uint LiquidType4;
-        public float MinElevation;
+        public float MaxDepth;
         public float AmbientMultiplier;
         public uint Light;
         public uint UnkCataclysm1;
@@ -28,5 +27,6 @@
         public uint UnkCataclysm3;
         public uint UnkCataclysm4;
         public int UnkCataclysm5;
+        public int UnkCataclysm6;
     }
 }
