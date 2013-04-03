@@ -163,62 +163,82 @@ namespace MyDBCViewer
         private void OutputSQL(object sender, DoWorkEventArgs e)
         // ReSharper restore InconsistentNaming
         {
-            var output = new StreamWriter("output.sql") { AutoFlush = true };
+            string tableName = Storage.GetFileName().AsReflectionTypeIdentifier() + "Records";
 
+            var output = new StreamWriter("output.sql") { AutoFlush = true };
             SQLExportWorker.ReportProgress(0);
 
             var parameterList = new List<string>();
+            var structure = new List<string>();
             ClientFieldInfo[] fileInfo = BaseDbcFormat.GetStructure(Storage.RecordType);
 
+            output.WriteLine("DROP TABLE IF EXISTS `{0}`;", tableName);
             foreach (var info in fileInfo)
             {
+                bool isString = (info.FieldType == typeof(string)); // BaseDbcFormat.IsFieldString(Storage.RecordType, info.Name);
                 if (info.ArraySize != 0)
+                {
                     for (int i = 0; i < info.ArraySize; ++i)
+                    {
                         parameterList.Add(String.Format("`{0}_{1}`", info.Name, i));
+                        structure.Add(String.Format("`{0}_{1}` {2}", info.Name, i, isString ? "TEXT" : "BIGINT(20)"));
+                    }
+                }
                 else
+                {
                     parameterList.Add(String.Format("`{0}`", info.Name));
+                    structure.Add(String.Format("`{0}` {1}", info.Name, isString ? "TEXT" : "BIGINT(20)"));
+                }
             }
 
-            output.WriteLine("INSERT INTO `{0}Records` ({1}) VALUES", SelectedFile,
-                             String.Join(", ", parameterList.ToArray()));
+            string insertHeader = String.Format("INSERT INTO `{0}` ({1}) VALUES", tableName, String.Join(", ", parameterList.ToArray()));
 
-            parameterList.Clear(); // Reuse it
+            output.WriteLine("CREATE TABLE `{0}` (", tableName);
+            int recordItr = 0; // Actually used as the field iterator first
+            foreach (var field in structure)
+            {
+                output.WriteLine("  {0}{1}", field, (recordItr + 1) == structure.Count ? "" : ",");
+                ++recordItr;
+            }
+            output.WriteLine(");" + Environment.NewLine);
+            output.WriteLine(insertHeader);
 
             SQLExportWorker.ReportProgress(50);
 
-            int recordIndex = 0;
-            int lastRecord = Storage.Store.Count - 1;
+            recordItr = 1;
             foreach (var record in Storage.Store)
             {
                 var fieldList = new List<string>();
                 foreach (var info in fileInfo)
                 {
-                    bool isStringField = (info.FieldType == typeof(string));
                     FieldInfo fi = record.GetType().GetField(info.Name);
+
                     if (info.ArraySize != 0)
                     {
-                        dynamic value = fi.GetValue(record); // .ToString();
+                        dynamic value = fi.GetValue(record);
                         foreach (object item in value)
                         {
-                            if (isStringField)
-                                fieldList.Add("\"" + item.ToString().Escape() + "\"");
+                            string itemVal = item.ToString();
+                            if (info.FieldType == typeof(string))
+                                fieldList.Add("\"" + itemVal.Escape() + "\"");
                             else
-                                fieldList.Add(item.ToString());
+                                fieldList.Add(itemVal.Replace(",", "."));
                         }
                     }
                     else
                     {
                         string value = fi.GetValue(record).ToString();
-                        if (isStringField)
-                            fieldList.Add("\"" + value.Escape() + "\"");
+                        if (info.FieldType == typeof(string))
+                            fieldList.Add(" \"" + value.Escape() + "\"");
                         else
-                            fieldList.Add(value);
+                            fieldList.Add(value.Replace(",", "."));
                     }
                 }
-                output.WriteLine("({0})" + (recordIndex == lastRecord ? ";" : ","),
-                                 String.Join(",", fieldList.ToArray()));
-                output.Flush();
-                ++recordIndex;
+                output.WriteLine("({0})" + (recordItr % 250 == 0 || recordItr == Storage.Store.Count ? ";" : ","), String.Join(",", fieldList.ToArray()));
+
+                if (recordItr % 250 == 0)
+                    output.WriteLine(Environment.NewLine + insertHeader);
+                ++recordItr;
             }
 
             output.Close();
@@ -301,11 +321,10 @@ namespace MyDBCViewer
                 // Get the records
                 using (dynamic dbcRecords = currentStorageType.GetProperty("Records").GetValue(currentStorage))
                     foreach (var record in dbcRecords)
-                        // result.AddRenderingRow(BaseDbcFormat.CreateTableRow(record, CurrentDbFileType, record.GetType()));
                         Storage.AddRecord(record);
 
                 SetSelectedFile(Storage.GetFileName(), Storage.GetFileType().ToLower());
-                BackgroundLoader.ReportProgress(100);
+                BackgroundLoader.ReportProgress(90);
 
                 await Task.Run(() => Storage.Render(ref _lvRecordList, ref RecordsCountLabel, ref BackgroundWorkProgressBar));
             }
@@ -396,6 +415,14 @@ namespace MyDBCViewer
                 AddRenderingRow(BaseDbcFormat.CreateTableRow(record, RecordType));
         }
 
+        public void Filter(FilterInfo[] filters)
+        {
+            foreach (var filter in filters)
+            {
+
+            }
+        }
+
         public void Render(ref ListView renderer, ref ToolStripStatusLabel recCount, ref ToolStripProgressBar loadingBar)
         {
             if (Rows.Count == 0)
@@ -411,6 +438,7 @@ namespace MyDBCViewer
 
             renderer.EndUpdate();
 
+            loadingBar.Value = 100;
             recCount.Text = String.Format(@"Records: {0}", Rows.Count);
             loadingBar.Visible = false;
         }
@@ -431,6 +459,33 @@ namespace MyDBCViewer
             SelectedBuild = build;
             StorageType = store;
             RecordType = Assembly.GetExecutingAssembly().GetFormatType("FileStructures.{0}.{1}.{2}Entry", FileType, SelectedBuild, FileName.AsReflectionTypeIdentifier());
+        }
+    }
+
+    public enum FilterOperator
+    {
+        FilterEqual = 0,
+        FilterDiffer = 1,
+        FilterBitAnd = 2,
+        FilterContains = 3,
+    }
+
+    public class FilterInfo
+    {
+        public string Field;
+        public int ArrayOffset;
+        public string Value;
+        public FilterOperator Operator;
+
+        public FilterInfo(string field, string compare, FilterOperator op)
+        {
+            Field = field.Substring(0, field.IndexOf('[') - 1);
+            Value = compare;
+            Operator = op;
+            ArrayOffset = -1;
+
+            if (field != Field)
+                ArrayOffset = Convert.ToInt32(field.Substring(field.IndexOf('['), 1));
         }
     }
 }
