@@ -54,6 +54,7 @@
     <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemEntry.cs" />
     <Compile Include="ClientDefinitions\DB2\Cataclysm\ItemExtendedCostEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AchievementCategoryEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\AchievementCriteriaEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AchievementEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaGroupEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\AreaPOIEntry.cs" />
@@ -110,6 +111,10 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\HolidayNamesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\HolidaysEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ImportEntries.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemClassEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemDisenchantmentLoot.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemDisplayInfoEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemNameDescriptionEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemPriceBaseEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemReforgeEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\ItemSetEntry.cs" />
@@ -135,7 +140,7 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\LoadingScreensEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\LoadingScreenTaxiSplinesEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\LockEntry.cs" />
-	<Compile Include="ClientDefinitions\DBC\Cataclysm\LockTypeEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\Cataclysm\LockTypeEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MailTemplateEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MapDifficultyEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\MapEntry.cs" />
@@ -216,6 +221,7 @@
     <Compile Include="ClientDefinitions\DBC\Cataclysm\TransportRotationEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\WorldSafeLocsEntry.cs" />
     <Compile Include="ClientDefinitions\DBC\Cataclysm\WorldStateUIEntry.cs" />
+    <Compile Include="ClientDefinitions\DBC\WoTLK\AchievementCriteriaEntry.cs" />
     <Compile Include="CorrectedListView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -259,7 +265,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ClientDefinitions\DB2\WoTLK\" />
-    <Folder Include="ClientDefinitions\DBC\WoTLK\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\CheckBox.png" />

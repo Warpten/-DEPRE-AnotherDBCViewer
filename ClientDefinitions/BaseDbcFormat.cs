@@ -57,8 +57,12 @@ namespace FileStructures
             foreach (var propInfo in propsList)
             {
                 var cellValue = rowStruct.GetField(propInfo.Name).GetValue(rowInfo);
-                if (cellValue.GetType().IsArray)
-                    rowData.AddRange(from object item in (cellValue as IEnumerable) select item.ToString());
+                if (cellValue.GetType().IsArray) {
+                    if (cellValue.GetType() == typeof(string[]))
+                        rowData.AddRange(cellValue);
+                    else
+                        rowData.AddRange(from object item in (cellValue as IEnumerable) select item.ToString());
+                }
                 else
                     rowData.Add(cellValue.ToString());
             }

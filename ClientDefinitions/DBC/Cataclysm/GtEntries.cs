@@ -41,6 +41,7 @@
 
     public sealed class gtOCTClassCombatRatingScalarEntry
     {
+        public uint Unk;
         public float Ratio;
     }
 
