@@ -18,14 +18,17 @@ namespace MyDBCViewer
     {
         public string SelectedBuild; //< String identifying the build (Cataclysm or WoTLK)
         public string SelectedFile; //< File currently displayed
-        public FileInfoStorage Storage; //< Contains information about every record currently held.
+        public static FileInfoStorage Storage; //< Contains information about every record currently held.
+
+        private ListViewItem[] RecordCache;
+        private int FirstCacheIndex;
 
         public MainForm()
         {
             InitializeComponent();
         }
 
-        private void ExportToSQL(object sender, EventArgs e)
+        private void ExportToSql(object sender, EventArgs e)
         {
             SQLExportWorker.RunWorkerAsync();
         }
@@ -88,7 +91,6 @@ namespace MyDBCViewer
             #endregion Load every DBC
 
             #region Load every DB2 file
-
             try
             {
                 string[] db2Names = Directory.GetFiles("db2/", "*.db2", SearchOption.TopDirectoryOnly);
@@ -111,7 +113,8 @@ namespace MyDBCViewer
             }
             catch (Exception /*ex*/)
             {
-                MessageBox.Show(@"You need to put your .db2 files into the /db2/ subdirectory!");
+                if (SelectedBuild == "Cataclysm")
+                    MessageBox.Show(@"You need to put your .db2 files into the /db2/ subdirectory!");
             }
 
             #endregion Load every DB2 file
@@ -175,7 +178,7 @@ namespace MyDBCViewer
             output.WriteLine("DROP TABLE IF EXISTS `{0}`;", tableName);
             foreach (var info in fileInfo)
             {
-                bool isString = (info.FieldType == typeof(string)); // BaseDbcFormat.IsFieldString(Storage.RecordType, info.Name);
+                bool isString = (info.FieldType == typeof(string) || info.FieldType == typeof(string[])); // BaseDbcFormat.IsFieldString(Storage.RecordType, info.Name);
                 if (info.ArraySize != 0)
                 {
                     for (int i = 0; i < info.ArraySize; ++i)
@@ -218,8 +221,12 @@ namespace MyDBCViewer
                         dynamic value = fi.GetValue(record);
                         foreach (object item in value)
                         {
+                            if (item == null) {
+                                fieldList.Add("\"<null>\"");
+                                continue;
+                            }
                             string itemVal = item.ToString();
-                            if (info.FieldType == typeof(string))
+                            if (info.FieldType == typeof(string) || info.FieldType == typeof(string[]))
                                 fieldList.Add("\"" + itemVal.Escape() + "\"");
                             else
                                 fieldList.Add(itemVal.Replace(",", "."));
@@ -228,7 +235,7 @@ namespace MyDBCViewer
                     else
                     {
                         string value = fi.GetValue(record).ToString();
-                        if (info.FieldType == typeof(string))
+                        if (info.FieldType == typeof(string) || info.FieldType == typeof(string[]))
                             fieldList.Add(" \"" + value.Escape() + "\"");
                         else
                             fieldList.Add(value.Replace(",", "."));
@@ -278,7 +285,7 @@ namespace MyDBCViewer
 
         private async void BackgroundLoadFile(object sender, DoWorkEventArgs e)
         {
-            Storage = new FileInfoStorage((BackgroundWorkerSettings)e.Argument, ref _lvRecordList);
+            Storage = new FileInfoStorage((BackgroundWorkerSettings)e.Argument);
 
             try
             {
@@ -303,17 +310,15 @@ namespace MyDBCViewer
                 }
 
                 BackgroundLoader.ReportProgress(40);
-
-                #region Columns loading, set to hidden
                 Storage.ClearStore();
 
+                #region Columns loading, set to hidden
                 foreach (var col in columnsArray)
                     if (col.ArraySize != 0)
                         for (var i = 0; i < col.ArraySize; ++i)
                             Storage.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left, i);
                     else
                         Storage.AddColumnHeader(col.Name, 0, HorizontalAlignment.Left);
-
                 #endregion Columns loading, set to hidden
 
                 BackgroundLoader.ReportProgress(60);
@@ -326,6 +331,8 @@ namespace MyDBCViewer
                 SetSelectedFile(Storage.GetFileName(), Storage.GetFileType().ToLower());
                 BackgroundLoader.ReportProgress(90);
 
+                RecordCache = null;
+                FirstCacheIndex = 0;
                 await Task.Run(() => Storage.Render(ref _lvRecordList, ref RecordsCountLabel, ref BackgroundWorkProgressBar));
             }
             catch (Exception ex)
@@ -344,6 +351,40 @@ namespace MyDBCViewer
         {
 
         }
+
+        //! ListView in Virtual Mode
+        private void RetrieveRecords(object sender, RetrieveVirtualItemEventArgs e)
+        {
+            if (RecordCache != null && e.ItemIndex >= FirstCacheIndex && e.ItemIndex <= FirstCacheIndex + RecordCache.Length)
+            {
+                e.Item = RecordCache[e.ItemIndex - FirstCacheIndex];
+                return;
+            }
+
+
+            int attempts = 50;
+            ListViewItem item = null;
+            while (attempts > 0 && !Storage.GetRow(e.ItemIndex, out item))
+            {
+                MessageBox.Show(String.Format("Rows.Count={0}, Store.Count={1}, itemIndex={2}", Storage.Rows.Count, Storage.Store.Count, e.ItemIndex));
+                --attempts;
+            }
+            e.Item = item;
+        }
+
+        private void CacheRecords(object sender, CacheVirtualItemsEventArgs e)
+        {
+            // Item in cache, ignore
+            if (RecordCache != null && e.StartIndex >= FirstCacheIndex && e.EndIndex <= FirstCacheIndex + RecordCache.Length)
+                return;
+
+            FirstCacheIndex = e.StartIndex;
+            int length = e.EndIndex - e.StartIndex + 1;
+            RecordCache = new ListViewItem[length];
+
+            for (int i = 0; i < length; ++i)
+                RecordCache[i] = Storage.Rows[i + FirstCacheIndex];
+        }
     }
 
     public class FileInfoStorage
@@ -351,7 +392,7 @@ namespace MyDBCViewer
         // ReSharper disable InconsistentNaming
         private BackgroundWorkerSettings InitialSettings;
         public List<ColumnHeader> Headers;
-        public ListView Renderer;
+
         public Type RecordType
         {
             get { return InitialSettings.RecordType; }
@@ -364,14 +405,21 @@ namespace MyDBCViewer
         public List<object> Store;
         // ReSharper restore InconsistentNaming
 
-        public FileInfoStorage(BackgroundWorkerSettings settings, ref ListView renderer)
+        public FileInfoStorage(BackgroundWorkerSettings settings)
         {
             Rows = new List<ListViewItem>();
             Headers = new List<ColumnHeader>();
             Store = new List<object>();
-            Renderer = renderer;
 
             InitialSettings = settings;
+        }
+
+        public bool GetRow(int index, out ListViewItem item)
+        {
+            if (Rows.Count == 0)
+                PopulateRows();
+            item = Rows[index];
+            return index < Rows.Count;
         }
 
         public void AddColumnHeader(string text, int width, HorizontalAlignment alignment, int arrayOffset = -1)
@@ -428,15 +476,11 @@ namespace MyDBCViewer
             if (Rows.Count == 0)
                 PopulateRows();
 
+            renderer.VirtualListSize = Rows.Count;
             renderer.Clear();
-            renderer.BeginUpdate();
             renderer.Columns.AddRange(Headers.ToArray());
-            renderer.Items.AddRange(Rows.ToArray());
-
             foreach (ColumnHeader col in renderer.Columns)
                 col.Width = BaseDbcFormat.IsFieldString(RecordType, col.Name) ? 120 : -2;
-
-            renderer.EndUpdate();
 
             loadingBar.Value = 100;
             recCount.Text = String.Format(@"Records: {0}", Rows.Count);

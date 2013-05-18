@@ -123,7 +123,7 @@
             this.toSQLToolStripMenuItem.Name = "toSQLToolStripMenuItem";
             this.toSQLToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
             this.toSQLToolStripMenuItem.Text = "Export as SQL";
-            this.toSQLToolStripMenuItem.Click += new System.EventHandler(this.ExportToSQL);
+            this.toSQLToolStripMenuItem.Click += new System.EventHandler(this.ExportToSql);
             // 
             // FilterButton
             // 
@@ -148,6 +148,9 @@
             this._lvRecordList.TabIndex = 8;
             this._lvRecordList.UseCompatibleStateImageBehavior = false;
             this._lvRecordList.View = System.Windows.Forms.View.Details;
+            this._lvRecordList.VirtualMode = true;
+            this._lvRecordList.CacheVirtualItems += new System.Windows.Forms.CacheVirtualItemsEventHandler(this.CacheRecords);
+            this._lvRecordList.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.RetrieveRecords);
             // 
             // BackgroundLoader
             // 
