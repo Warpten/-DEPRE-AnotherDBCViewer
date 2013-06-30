@@ -4,7 +4,7 @@
     {
         public uint Id;
         public int MapId;
-        public int UnkId; // Some sort of ID
+        public int QuestPOIPointGroupId; // field 4 QuestPOIPoint.dbc 
         public string Name;
         public int Unk0; // Flags ?
     }

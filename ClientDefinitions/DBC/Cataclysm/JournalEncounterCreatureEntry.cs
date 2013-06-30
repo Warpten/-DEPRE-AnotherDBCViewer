@@ -6,7 +6,7 @@
         public uint EncounterId;
         public uint ModelId;
         public uint Index;
-        public uint Unk1;
+        public uint BossIconFileDataId;
         public string Name;
         public string SubName;
     }

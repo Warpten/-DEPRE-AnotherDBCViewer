@@ -15,7 +15,7 @@ namespace FileStructures.DBC.Cataclysm
         public int Difficulty;
         public int Flags;
         public uint Type;
-        public uint Unk0;
+        public int Unk0;
         public string IconName;
         public uint Expansion;
         public uint Unk1;
